@@ -195,11 +195,19 @@ export default function ChatWidget() {
 
       {open && (
         <>
-          {(step === 'welcome' || step === 'thankyou') && (
-            <div style={styles.backdrop} />
-          )}
+          <div style={styles.backdrop} />
 
-          <div style={step === 'welcome' || step === 'thankyou' ? styles.panelCentered : styles.panel}>
+
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 100, width: '460px',
+            height: step === 'chat' ? '560px' : 'auto',
+            borderRadius: '16px', background: '#0f172a',
+            border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+            display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          }}>
             <Header />
 
             {step === 'welcome' && (
@@ -259,6 +267,12 @@ export default function ChatWidget() {
 
             {step === 'chat' && (
               <>
+                <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.2)' }}>
+                  <span style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>Ask me anything about Sandeep</span>
+                  <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>
+                    Exit interface
+                  </button>
+                </div>
                 <div className="chat-scroll" style={styles.messages}>
                   {messages.map((msg, i) => (
                     <div key={i} style={msg.role === 'user' ? styles.userBubble : styles.botBubble}>{msg.content}</div>
