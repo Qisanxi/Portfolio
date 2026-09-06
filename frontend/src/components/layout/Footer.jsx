@@ -21,15 +21,15 @@ export default function Footer() {
         </div>
 
         <p className="text-slate-600 text-xs font-mono text-center">
-          Built with React, FastAPI, PostgreSQL and Gemini API
+          Built with React, FastAPI, PostgreSQL and Google GenAI SDK
         </p>
 
         <div className="flex items-center gap-4">
           <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>GitHub</a>
           <span className="text-slate-700 font-mono text-xs">/</span>
-          <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noreferrer" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>LinkedIn</a>
+          <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>LinkedIn</a>
           <span className="text-slate-700 font-mono text-xs">/</span>
-          <a href="mailto:your@email.com" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Email</a>
+          <a href="mailto:sandeepkumarultra615615@gmail.com" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Email</a>
         </div>
 
       </div>

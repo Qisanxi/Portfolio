@@ -3,22 +3,29 @@ const timeline = [
     year: '2026',
     title: 'AMD AI DevMaster Hackathon',
     subtitle: 'Hackathon Participant',
-    description: 'Built a private AI agent for WhatsApp Business using AMD Radeon Cloud and Qwen3.6-35B-A3B via ROCm infrastructure.',
+    description: 'Built a WhatsApp Priority Agent using Qwen3-35B via AMD Radeon Cloud ROCm infrastructure. Recognized by AMD Developer Program for outstanding participation and project completion.',
     color: '#f97316',
   },
   {
     year: '2026',
-    title: 'Gemini XPrize',
-    subtitle: 'Hackathon Participant',
-    description: 'Built a school fee collection AI agent that parses student data and sends automated WhatsApp payment reminders to parents.',
+    title: 'Prompt Engineering Research & Integration',
+    subtitle: 'Remote Internship — Excelerate',
+    description: 'Integrated AI prompts into backend workflows to improve system reliability and contextual accuracy. Strengthened understanding of backend-AI integration and scalable API design.',
     color: '#6366f1',
   },
   {
-    year: '2025',
-    title: 'Excelerate Flutter Internship',
-    subtitle: 'Team Leader — Team 9',
-    description: 'Led Team 9 in building a Flutter e-learning mobile application. Managed deliverables, coordinated team members, and drove the project end to end.',
+    year: '2026',
+    title: 'Mobile App Development',
+    subtitle: 'Remote Internship — Excelerate',
+    description: 'Architected and deployed a comprehensive state management system for a Flutter mobile app. Gained exposure to full-stack development, reinforcing backend concepts in a mobile context.',
     color: '#10b981',
+  },
+  {
+    year: '2026',
+    title: 'McKinsey Forward Program',
+    subtitle: 'Graduate — McKinsey.org',
+    description: 'Graduated from a 10-week global learning program focused on communication, leadership, and problem-solving frameworks used at McKinsey & Company.',
+    color: '#38bdf8',
   },
 ]
 
@@ -55,18 +62,19 @@ export default function About() {
 
           <div>
             <p className="text-slate-400 leading-relaxed mb-6">
-              I am a fullstack and mobile developer with a growing focus on AI engineering.
-              I enjoy building tools that solve real problems — from automating fee collection
-              for schools to helping users navigate financial decisions with AI.
+              I am a self-driven developer with a strong foundation in data structures, algorithms,
+              and Python backend development. I overcame self-directed learning challenges by focusing
+              on high-impact tech hackathons, open-source GitHub contributions, and end-to-end
+              project development.
             </p>
             <p className="text-slate-400 leading-relaxed mb-6">
-              Beyond writing code, I have led teams — coordinating deliverables, unblocking
-              teammates, and keeping projects moving. That combination of building and leading
-              is what I bring to every project.
+              I specialize in building AI-integrated full-stack applications — from autonomous content
+              agents that post to LinkedIn without touching a keyboard, to AI-powered fee collection
+              platforms that track payment risk patterns in real time.
             </p>
             <p className="text-slate-400 leading-relaxed mb-8">
-              Currently deepening my knowledge in AI agents, RAG pipelines, and LLM tooling
-              with the goal of becoming an AI engineer.
+              Currently pursuing a Bachelor of Computer Applications at Patliputra University, Patna,
+              and deepening expertise in AI agents, RAG pipelines, and scalable API design.
             </p>
 
             <div className="grid grid-cols-2 gap-4">
@@ -75,16 +83,16 @@ export default function About() {
                 <div className="text-slate-500 text-sm font-mono">Projects built</div>
               </div>
               <div className="rounded-xl p-4" style={sectionCardStyle}>
-                <div className="text-2xl font-bold text-white mb-1">2</div>
-                <div className="text-slate-500 text-sm font-mono">Hackathons</div>
-              </div>
-              <div className="rounded-xl p-4" style={sectionCardStyle}>
                 <div className="text-2xl font-bold text-white mb-1">1</div>
-                <div className="text-slate-500 text-sm font-mono">Team led</div>
+                <div className="text-slate-500 text-sm font-mono">Hackathon</div>
               </div>
               <div className="rounded-xl p-4" style={sectionCardStyle}>
-                <div className="text-2xl font-bold text-white mb-1">3+</div>
-                <div className="text-slate-500 text-sm font-mono">AI integrations</div>
+                <div className="text-2xl font-bold text-white mb-1">2</div>
+                <div className="text-slate-500 text-sm font-mono">Internships</div>
+              </div>
+              <div className="rounded-xl p-4" style={sectionCardStyle}>
+                <div className="text-2xl font-bold text-white mb-1">4</div>
+                <div className="text-slate-500 text-sm font-mono">Certifications</div>
               </div>
             </div>
           </div>
@@ -117,7 +125,7 @@ export default function About() {
                 <span className="text-green-400 text-xs font-mono">open to work</span>
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">
-                Looking for internship and collaboration opportunities in backend development and AI engineering.
+                Seeking an entry-level role in backend development or AI engineering where I can build scalable web applications.
               </p>
             </div>
           </div>

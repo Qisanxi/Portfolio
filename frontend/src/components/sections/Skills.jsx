@@ -3,31 +3,37 @@ const skillGroups = [
     category: 'Web Development',
     number: '01',
     color: '#6366f1',
-    skills: ['React', 'FastAPI', 'Django', 'Python', 'REST APIs'],
+    skills: ['React', 'FastAPI', 'Django', 'Python', 'REST APIs', 'Java'],
   },
   {
-    category: 'Mobile',
+    category: 'Databases',
     number: '02',
-    color: '#10b981',
-    skills: ['Flutter', 'Dart'],
+    color: '#38bdf8',
+    skills: ['PostgreSQL', 'MongoDB', 'Firebase', 'SQL'],
   },
   {
     category: 'AI / LLMs',
     number: '03',
     color: '#f97316',
-    skills: ['Agents', 'RAG', 'LLMs', 'Prompt Engineering'],
+    skills: ['Agents', 'RAG', 'LLMs', 'Prompt Engineering', 'Google GenAI SDK', 'Google ADK'],
   },
   {
-    category: 'Databases',
+    category: 'Cloud & Infra',
     number: '04',
-    color: '#38bdf8',
-    skills: ['PostgreSQL', 'Firebase'],
+    color: '#10b981',
+    skills: ['AWS', 'Google Cloud', 'Docker', 'Linux'],
   },
   {
     category: 'Tools',
     number: '05',
     color: '#a78bfa',
-    skills: ['Git', 'GitHub', 'Docker', 'VS Code', 'Postman'],
+    skills: ['Git', 'GitHub', 'VS Code', 'Claude Code', 'Codex', 'Postman'],
+  },
+  {
+    category: 'Mobile',
+    number: '06',
+    color: '#fb7185',
+    skills: ['Flutter', 'Dart'],
   },
 ]
 
@@ -59,7 +65,7 @@ export default function Skills() {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">What I work with</h2>
-        <p className="text-slate-400 mb-12 max-w-xl">Technologies I use regularly across web, mobile, and AI projects. Updated as I grow.</p>
+        <p className="text-slate-400 mb-12 max-w-xl">Technologies I use regularly across backend, AI, cloud, and mobile projects. Updated as I grow.</p>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {skillGroups.map((group) => (
@@ -87,8 +93,8 @@ export default function Skills() {
             <span className="text-indigo-400 text-sm font-mono">currently exploring</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
-            Deepening my knowledge in AI engineering — agents, RAG pipelines, and LLM tooling.
-            Also exploring cloud deployment patterns on Railway and Vercel.
+            Deepening expertise in AI agents, RAG pipelines, and LLM tooling with Google ADK and Claude Code.
+            Also expanding cloud skills on AWS and Google Cloud for scalable deployments.
           </p>
         </div>
 

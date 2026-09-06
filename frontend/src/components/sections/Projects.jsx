@@ -28,52 +28,52 @@ const tagStyle = { background: 'rgba(255,255,255,0.04)' }
 
 const projects = [
   {
-    title: 'WhatsApp Business AI Agent',
-    description: 'Private AI agent for WhatsApp Business that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Powered by Qwen3.6-35B-A3B via AMD Radeon Cloud ROCm infrastructure.',
-    tags: ['FastAPI', 'React', 'Tailwind v4', 'PostgreSQL', 'AMD ROCm', 'Qwen3'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: 'AMD AI DevMaster Hackathon 2026',
-    badgeColor: '#f97316',
-    featured: true,
-  },
-  {
-    title: 'School Fee Collection Agent',
-    description: 'AI agent that automates school and tuition fee collection. Users upload a PDF or Excel sheet of students with due balances — the agent extracts the data and sends personalized WhatsApp reminders to parents automatically.',
-    tags: ['Python', 'FastAPI', 'Gemini API', 'WhatsApp API', 'PDF Parsing'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: 'Gemini XPrize',
-    badgeColor: '#6366f1',
-    featured: true,
-  },
-  {
-    title: 'Chef Claude',
-    description: 'AI-powered recipe generation app. Users input available ingredients and get personalized recipes with step-by-step instructions and nutritional information powered by the Gemini API.',
-    tags: ['React', 'Django REST', 'Python', 'Gemini API'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
+    title: 'DueAlert',
+    description: 'AI-powered fee collection and student payment tracking platform for coaching centers and educational institutions. Helps institutions organize student fee data, identify payment-risk patterns, and automate reminders via WhatsApp.',
+    tags: ['Python', 'FastAPI', 'Pydantic', 'React.js', 'Tailwind CSS', 'Google GenAI SDK', 'Firebase'],
+    github: 'https://github.com/Qisanxi/DueAlert',
+    demo: null,
     badge: null,
     badgeColor: null,
+    featured: true,
+  },
+  {
+    title: 'AutoPost',
+    description: 'Fully autonomous content agent. Point it at a GitHub repo, it finds what is worth talking about, writes the post, and ships it — on LinkedIn and Dev.to — without you touching a keyboard after setup.',
+    tags: ['Python', 'FastAPI', 'Google Gemini Flash', 'Google ADK', 'React', 'Vite', 'React Router 7'],
+    github: 'https://github.com/Qisanxi/AutoPost',
+    demo: null,
+    badge: null,
+    badgeColor: null,
+    featured: true,
+  },
+  {
+    title: 'WhatsApp Priority Agent',
+    description: 'AI-driven WhatsApp Business agent that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Powered by Qwen3-35B via AMD Radeon Cloud ROCm infrastructure. Recognized by AMD Developer Program for outstanding participation.',
+    tags: ['FastAPI', 'React', 'Tailwind v4', 'PostgreSQL', 'AMD ROCm', 'Qwen3'],
+    github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
+    demo: null,
+    badge: 'AMD AI DevMaster Hackathon',
+    badgeColor: '#f97316',
     featured: false,
   },
   {
     title: 'FinLit AI Assistant',
-    description: 'AI-powered financial literacy assistant designed for Indian users. Helps understand mutual funds, insurance, tax-saving options, and government schemes through personalized conversations.',
+    description: 'AI-powered financial literacy assistant for Indian users. Helps understand mutual funds, insurance, tax-saving options, and government schemes through personalized conversations using RAG pipelines.',
     tags: ['Python', 'FastAPI', 'React', 'LLM', 'RAG'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
+    github: 'https://github.com/Qisanxi',
+    demo: null,
     badge: null,
     badgeColor: null,
     featured: false,
   },
   {
     title: 'Excelerate E-Learning App',
-    description: 'Flutter mobile e-learning platform built as Team Lead for Team 9 during the Excelerate Virtual Internship. Managed task distribution, coordinated deliverables, and led a team end to end.',
+    description: 'Flutter mobile e-learning platform built during the Excelerate Virtual Internship. Architected and deployed a comprehensive state management system, reinforcing full-stack and backend concepts in a mobile context.',
     tags: ['Flutter', 'Dart', 'Firebase', 'Mobile'],
-    github: 'https://github.com/Qisanxi/project',
+    github: 'https://github.com/Qisanxi',
     demo: null,
-    badge: 'Team Lead',
+    badge: 'Excelerate Internship',
     badgeColor: '#10b981',
     featured: false,
   },
@@ -137,7 +137,7 @@ export default function Projects() {
           <span className="text-indigo-400 text-sm font-mono">02. projects</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Things I have built</h2>
-        <p className="text-slate-400 mb-12 max-w-xl">A mix of hackathon projects, AI experiments, and real-world tools — all built to solve actual problems.</p>
+        <p className="text-slate-400 mb-12 max-w-xl">A mix of AI-powered tools, autonomous agents, and real-world applications — all built to solve actual problems.</p>
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {featured.map((project) => (
             <ProjectCard key={project.title} project={project} />
