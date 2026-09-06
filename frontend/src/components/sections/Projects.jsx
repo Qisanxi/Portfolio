@@ -29,27 +29,27 @@ const tagStyle = { background: 'rgba(255,255,255,0.04)' }
 const projects = [
   {
     title: 'DueAlert',
-    description: 'AI-powered fee collection and student payment tracking platform for coaching centers and educational institutions. Helps institutions organize student fee data, identify payment-risk patterns, and automate reminders via WhatsApp.',
+    description: 'AI-powered fee collection and student payment tracking platform for coaching centers and educational institutions. Identifies payment-risk patterns, generates personalized reminders with Gemini, and monitors collection activity from a centralized dashboard.',
     tags: ['Python', 'FastAPI', 'Pydantic', 'React.js', 'Tailwind CSS', 'Google GenAI SDK', 'Firebase'],
     github: 'https://github.com/Qisanxi/DueAlert',
-    demo: null,
-    badge: null,
-    badgeColor: null,
+    demo: 'https://duealert-bbb61.web.app',
+    badge: 'Gemini XPrize Hackathon',
+    badgeColor: '#6366f1',
     featured: true,
   },
   {
     title: 'AutoPost',
-    description: 'Fully autonomous content agent. Point it at a GitHub repo, it finds what is worth talking about, writes the post, and ships it — on LinkedIn and Dev.to — without you touching a keyboard after setup.',
+    description: 'Fully autonomous content agent. Point it at GitHub, it finds what is worth talking about, writes the post, and ships it — on LinkedIn and Dev.to — without you touching a keyboard after setup. Powered by Google ADK and Gemini.',
     tags: ['Python', 'FastAPI', 'Google Gemini Flash', 'Google ADK', 'React', 'Vite', 'React Router 7'],
     github: 'https://github.com/Qisanxi/AutoPost',
-    demo: null,
-    badge: null,
-    badgeColor: null,
+    demo: 'https://autopost-9c37c.web.app/#/',
+    badge: 'Google Agentic Hackathon',
+    badgeColor: '#4285f4',
     featured: true,
   },
   {
     title: 'WhatsApp Priority Agent',
-    description: 'AI-driven WhatsApp Business agent that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Powered by Qwen3-35B via AMD Radeon Cloud ROCm infrastructure. Recognized by AMD Developer Program for outstanding participation.',
+    description: 'AI-driven WhatsApp Business agent that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm infrastructure. Recognized by AMD Developer Program.',
     tags: ['FastAPI', 'React', 'Tailwind v4', 'PostgreSQL', 'AMD ROCm', 'Qwen3'],
     github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
     demo: null,
@@ -58,23 +58,13 @@ const projects = [
     featured: false,
   },
   {
-    title: 'FinLit AI Assistant',
-    description: 'AI-powered financial literacy assistant for Indian users. Helps understand mutual funds, insurance, tax-saving options, and government schemes through personalized conversations using RAG pipelines.',
-    tags: ['Python', 'FastAPI', 'React', 'LLM', 'RAG'],
-    github: 'https://github.com/Qisanxi',
+    title: 'FinSathi',
+    description: 'Financial literacy assistant for Indian users. Helps first-time investors understand mutual funds, insurance, tax-saving options, and government schemes in simple language personalized to each user\'s profile, with references to SEBI, AMFI, and IRDAI.',
+    tags: ['Python', 'Streamlit', 'Google Gemini', 'Google GenAI SDK'],
+    github: 'https://github.com/Qisanxi/finsathi.ai',
     demo: null,
     badge: null,
     badgeColor: null,
-    featured: false,
-  },
-  {
-    title: 'Excelerate E-Learning App',
-    description: 'Flutter mobile e-learning platform built during the Excelerate Virtual Internship. Architected and deployed a comprehensive state management system, reinforcing full-stack and backend concepts in a mobile context.',
-    tags: ['Flutter', 'Dart', 'Firebase', 'Mobile'],
-    github: 'https://github.com/Qisanxi',
-    demo: null,
-    badge: 'Excelerate Internship',
-    badgeColor: '#10b981',
     featured: false,
   },
 ]
@@ -109,17 +99,32 @@ function ProjectCard({ project }) {
           <h3 className="text-white font-semibold text-lg leading-tight">{project.title}</h3>
         </div>
         <div className="flex items-center gap-3 ml-4 shrink-0">
-          <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors"><GitHubIcon /></a>
+          <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors" title="View source">
+            <GitHubIcon />
+          </a>
           {project.demo && (
-            <a href={project.demo} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors"><ExternalLink size={16} /></a>
+            <a href={project.demo} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-400 transition-colors" title="Live demo">
+              <ExternalLink size={16} />
+            </a>
           )}
         </div>
       </div>
       <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1">{project.description}</p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         {project.tags.map((tag) => (
           <span key={tag} className="text-xs font-mono text-slate-500 px-2 py-1 rounded" style={tagStyle}>{tag}</span>
         ))}
+        {project.demo && (
+          <a
+            href={project.demo}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-auto text-xs font-mono text-indigo-400 border border-indigo-400/30 hover:border-indigo-400 hover:bg-indigo-400/10 px-3 py-1 rounded transition-all duration-200 flex items-center gap-1"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            Live
+          </a>
+        )}
       </div>
     </div>
   )
@@ -143,7 +148,7 @@ export default function Projects() {
             <ProjectCard key={project.title} project={project} />
           ))}
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {others.map((project) => (
             <ProjectCard key={project.title} project={project} />
           ))}

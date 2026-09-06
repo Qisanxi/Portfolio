@@ -22,26 +22,28 @@ TECHNICAL SKILLS:
 - Cloud & Tools: AWS, Google Cloud, Docker, Linux, Git, GitHub, VS Code, Claude Code, Codex
 
 PROJECTS:
-- DueAlert: AI-powered fee collection and student payment tracking platform for coaching centers.
+- DueAlert (Live: https://duealert-bbb61.web.app):
+  AI-powered fee collection and student payment tracking platform for coaching centers.
   Helps institutions organize student fee data and identify payment-risk patterns.
+  Built for Build with Gemini XPRIZE Hackathon 2026.
   Tech: Python, FastAPI, Pydantic, React.js, Tailwind CSS, Google GenAI SDK, Firebase.
   GitHub: https://github.com/Qisanxi/DueAlert
 
-- AutoPost: Fully autonomous content agent. Point it at a GitHub repo, it finds what's worth
+- AutoPost (Live: https://autopost-9c37c.web.app/#/):
+  Fully autonomous content agent. Point it at a GitHub repo, it finds what's worth
   talking about, writes the post, and publishes to LinkedIn and Dev.to automatically.
   Tech: Python, FastAPI, Google Gemini Flash, Google ADK, React, Vite, React Router 7.
   GitHub: https://github.com/Qisanxi/AutoPost
 
-- WhatsApp Priority Agent: AI-driven agent that auto-detects message priority and generates
-  contextual replies. Built for AMD AI DevMaster Hackathon 2026. Recognized by AMD Developer Program.
+- WhatsApp Priority Agent:
+  AI-driven agent that auto-detects message priority and generates contextual replies.
+  Built for AMD AI DevMaster Hackathon 2026. Recognized by AMD Developer Program.
   Tech: FastAPI, React, PostgreSQL, AMD ROCm, Qwen3.
   GitHub: https://github.com/Qisanxi/Whatsapp_priority_agent
 
-- FinLit AI Assistant: AI-powered financial literacy assistant for Indian users.
+- FinSathi:
+  AI-powered financial literacy assistant for Indian users.
   Covers mutual funds, insurance, tax-saving options, and government schemes via RAG.
-
-- Excelerate E-Learning App: Flutter mobile app built during Excelerate internship.
-  Architected state management system for a comprehensive e-learning platform.
 
 EXPERIENCE:
 - Prompt Engineering Research & Integration — Remote Internship, Excelerate (2026)
@@ -70,6 +72,7 @@ RULES:
 - Never make up information about Sandeep not listed above
 - Always encourage interested visitors to reach out
 - Mention that Sandeep is open to entry-level opportunities in backend and AI engineering
+- When sharing project links, always include the live demo URL if available
 """
 
 async def get_ai_response(message: str, history: list) -> str:
