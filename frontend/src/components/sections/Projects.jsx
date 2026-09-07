@@ -28,53 +28,43 @@ const tagStyle = { background: 'rgba(255,255,255,0.04)' }
 
 const projects = [
   {
-    title: 'WhatsApp Business AI Agent',
-    description: 'Private AI agent for WhatsApp Business that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Powered by Qwen3.6-35B-A3B via AMD Radeon Cloud ROCm infrastructure.',
-    tags: ['FastAPI', 'React', 'Tailwind v4', 'PostgreSQL', 'AMD ROCm', 'Qwen3'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: 'AMD AI DevMaster Hackathon 2026',
-    badgeColor: '#f97316',
-    featured: true,
-  },
-  {
-    title: 'School Fee Collection Agent',
-    description: 'AI agent that automates school and tuition fee collection. Users upload a PDF or Excel sheet of students with due balances — the agent extracts the data and sends personalized WhatsApp reminders to parents automatically.',
-    tags: ['Python', 'FastAPI', 'Gemini API', 'WhatsApp API', 'PDF Parsing'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: 'Gemini XPrize',
+    title: 'DueAlert',
+    description: 'AI-powered fee collection and student payment tracking platform for coaching centers and educational institutions. Identifies payment-risk patterns, generates personalized reminders with Gemini, and monitors collection activity from a centralized dashboard.',
+    tags: ['Python', 'FastAPI', 'Pydantic', 'React.js', 'Tailwind CSS', 'Google GenAI SDK', 'Firebase'],
+    github: 'https://github.com/Qisanxi/DueAlert',
+    demo: 'https://duealert-bbb61.web.app',
+    badge: 'Gemini XPrize Hackathon',
     badgeColor: '#6366f1',
     featured: true,
   },
   {
-    title: 'Chef Claude',
-    description: 'AI-powered recipe generation app. Users input available ingredients and get personalized recipes with step-by-step instructions and nutritional information powered by the Gemini API.',
-    tags: ['React', 'Django REST', 'Python', 'Gemini API'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: null,
-    badgeColor: null,
-    featured: false,
+    title: 'AutoPost',
+    description: 'Fully autonomous content agent. Point it at GitHub, it finds what is worth talking about, writes the post, and ships it — on LinkedIn and Dev.to — without you touching a keyboard after setup. Powered by Google ADK and Gemini.',
+    tags: ['Python', 'FastAPI', 'Google Gemini Flash', 'Google ADK', 'React', 'Vite', 'React Router 7'],
+    github: 'https://github.com/Qisanxi/AutoPost',
+    demo: 'https://autopost-9c37c.web.app/#/',
+    badge: 'Google Agentic Hackathon',
+    badgeColor: '#4285f4',
+    featured: true,
   },
   {
-    title: 'FinLit AI Assistant',
-    description: 'AI-powered financial literacy assistant designed for Indian users. Helps understand mutual funds, insurance, tax-saving options, and government schemes through personalized conversations.',
-    tags: ['Python', 'FastAPI', 'React', 'LLM', 'RAG'],
-    github: 'https://github.com/Qisanxi/project',
-    demo: 'https://example.com',
-    badge: null,
-    badgeColor: null,
-    featured: false,
-  },
-  {
-    title: 'Excelerate E-Learning App',
-    description: 'Flutter mobile e-learning platform built as Team Lead for Team 9 during the Excelerate Virtual Internship. Managed task distribution, coordinated deliverables, and led a team end to end.',
-    tags: ['Flutter', 'Dart', 'Firebase', 'Mobile'],
-    github: 'https://github.com/Qisanxi/project',
+    title: 'WhatsApp Priority Agent',
+    description: 'AI-driven WhatsApp Business agent that auto-detects message priority (Urgent/High/Normal/Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm infrastructure. Recognized by AMD Developer Program.',
+    tags: ['FastAPI', 'React', 'Tailwind v4', 'PostgreSQL', 'AMD ROCm', 'Qwen3'],
+    github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
     demo: null,
-    badge: 'Team Lead',
-    badgeColor: '#10b981',
+    badge: 'AMD AI DevMaster Hackathon',
+    badgeColor: '#f97316',
+    featured: false,
+  },
+  {
+    title: 'FinSathi',
+    description: 'Financial literacy assistant for Indian users. Helps first-time investors understand mutual funds, insurance, tax-saving options, and government schemes in simple language personalized to each user\'s profile, with references to SEBI, AMFI, and IRDAI.',
+    tags: ['Python', 'Streamlit', 'Google Gemini', 'Google GenAI SDK'],
+    github: 'https://github.com/Qisanxi/finsathi.ai',
+    demo: null,
+    badge: null,
+    badgeColor: null,
     featured: false,
   },
 ]
@@ -109,17 +99,32 @@ function ProjectCard({ project }) {
           <h3 className="text-white font-semibold text-lg leading-tight">{project.title}</h3>
         </div>
         <div className="flex items-center gap-3 ml-4 shrink-0">
-          <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors"><GitHubIcon /></a>
+          <a href={project.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors" title="View source">
+            <GitHubIcon />
+          </a>
           {project.demo && (
-            <a href={project.demo} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors"><ExternalLink size={16} /></a>
+            <a href={project.demo} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-400 transition-colors" title="Live demo">
+              <ExternalLink size={16} />
+            </a>
           )}
         </div>
       </div>
       <p className="text-slate-400 text-sm leading-relaxed mb-6 flex-1">{project.description}</p>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 items-center">
         {project.tags.map((tag) => (
           <span key={tag} className="text-xs font-mono text-slate-500 px-2 py-1 rounded" style={tagStyle}>{tag}</span>
         ))}
+        {project.demo && (
+          <a
+            href={project.demo}
+            target="_blank"
+            rel="noreferrer"
+            className="ml-auto text-xs font-mono text-indigo-400 border border-indigo-400/30 hover:border-indigo-400 hover:bg-indigo-400/10 px-3 py-1 rounded transition-all duration-200 flex items-center gap-1"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            Live
+          </a>
+        )}
       </div>
     </div>
   )
@@ -137,13 +142,13 @@ export default function Projects() {
           <span className="text-indigo-400 text-sm font-mono">02. projects</span>
         </div>
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Things I have built</h2>
-        <p className="text-slate-400 mb-12 max-w-xl">A mix of hackathon projects, AI experiments, and real-world tools — all built to solve actual problems.</p>
+        <p className="text-slate-400 mb-12 max-w-xl">A mix of AI-powered tools, autonomous agents, and real-world applications — all built to solve actual problems.</p>
         <div className="grid md:grid-cols-2 gap-6 mb-6">
           {featured.map((project) => (
             <ProjectCard key={project.title} project={project} />
           ))}
         </div>
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {others.map((project) => (
             <ProjectCard key={project.title} project={project} />
           ))}

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import { Mail, ArrowDown } from 'lucide-react'
 
 const roles = [
-  'Fullstack Developer',
-  'Flutter Developer',
-  'AI Enthusiast',
-  'Team Leader',
+  'Software Engineer',
+  'Python Backend Developer',
+  'AI-Integrated Full-Stack Dev',
+  'FastAPI & React Developer',
 ]
 
 const GitHubIcon = () => (
@@ -102,9 +102,9 @@ export default function Hero() {
 
         {/* Bio */}
         <p className="text-slate-400 text-base md:text-lg max-w-xl mb-10 leading-relaxed">
-          I build things for the web and mobile — fullstack applications,
-          AI-powered tools, and everything in between. Currently leading
-          Team 9 at the Excelerate Flutter Internship.
+          Self-driven developer with a strong foundation in Python backend and AI-integrated
+          full-stack development. I build tools that solve real problems — from autonomous
+          content agents to AI-powered fee collection platforms.
         </p>
 
         {/* CTAs */}
@@ -125,10 +125,10 @@ export default function Hero() {
           <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors">
             <GitHubIcon />
           </a>
-          <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors">
+          <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors">
             <LinkedInIcon />
           </a>
-          <a href="mailto:your@email.com" className="text-slate-500 hover:text-white transition-colors">
+          <a href="mailto:sandeepkumarultra615615@gmail.com" className="text-slate-500 hover:text-white transition-colors">
             <Mail size={20} />
           </a>
           <div className="w-px h-4 bg-slate-700"></div>

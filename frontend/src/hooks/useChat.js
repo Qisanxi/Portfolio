@@ -3,9 +3,9 @@ import { useState } from 'react'
 const API_URL = import.meta.env.VITE_API_URL
 
 const welcomeMessages = {
-  recruiter: "Hi! I am Sandeep's AI assistant. I see you are a recruiter — feel free to ask me about his skills, projects, experience, or how to get in touch with him.",
-  student: "Hi! Great to meet a fellow student! Ask me anything about Sandeep's projects, tech stack, or his experience with hackathons and internships.",
-  friend: "Hey! Sandeep says hi! Feel free to ask me anything about what he has been building lately.",
+  recruiter: "Hi! I am Sandeep's AI assistant. I see you are a recruiter — feel free to ask me about his skills, projects, experience, or how to get in touch with him. He is actively seeking entry-level roles in backend development and AI engineering.",
+  student: "Hi! Great to connect with a fellow developer! Ask me anything about Sandeep's projects like DueAlert or AutoPost, his tech stack (FastAPI, React, Google GenAI), or his hackathon experience.",
+  friend: "Hey! Sandeep says hi! Feel free to ask me anything about what he has been building lately — autonomous content agents, AI fee collection platforms, and more.",
 }
 
 export function useChat() {

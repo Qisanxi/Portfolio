@@ -81,7 +81,7 @@ export default function Contact() {
         </div>
 
         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Get in touch</h2>
-        <p className="text-slate-400 mb-12 max-w-xl">Open to internships, collaborations, and interesting projects. Drop a message or reach out directly.</p>
+        <p className="text-slate-400 mb-12 max-w-xl">Open to entry-level roles, internships, and interesting projects. Drop a message or reach out directly.</p>
 
         <div className="grid md:grid-cols-2 gap-12">
 
@@ -124,7 +124,7 @@ export default function Contact() {
                 <Mail size={16} className="text-indigo-400" />
                 <span className="text-white text-sm font-medium">Email</span>
               </div>
-              <a href="mailto:your@email.com" className="text-slate-400 text-sm hover:text-indigo-400 transition-colors font-mono">your@email.com</a>
+              <a href="mailto:sandeepkumarultra615615@gmail.com" className="text-slate-400 text-sm hover:text-indigo-400 transition-colors font-mono">sandeepkumarultra615615@gmail.com</a>
             </div>
 
             <div className="rounded-xl p-6" style={cardStyle}>
@@ -134,9 +134,9 @@ export default function Contact() {
                   <GitHubIcon />
                   <span className="text-slate-400 text-sm font-mono">github.com/Qisanxi</span>
                 </a>
-                <a href="https://linkedin.com/in/yourprofile" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg transition-all" style={socialLinkStyle}>
+                <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-3 rounded-lg transition-all" style={socialLinkStyle}>
                   <LinkedInIcon />
-                  <span className="text-slate-400 text-sm font-mono">linkedin.com/in/yourprofile</span>
+                  <span className="text-slate-400 text-sm font-mono">linkedin.com/in/sandeep-qisanxi</span>
                 </a>
               </div>
             </div>
@@ -146,7 +146,7 @@ export default function Contact() {
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
                 <span className="text-green-400 text-xs font-mono">available now</span>
               </div>
-              <p className="text-slate-400 text-xs leading-relaxed">Open to internship and collaboration opportunities in backend development and AI engineering.</p>
+              <p className="text-slate-400 text-xs leading-relaxed">Seeking entry-level roles in backend development and AI engineering. Open to internships and collaboration opportunities.</p>
             </div>
           </div>
 
