@@ -16,8 +16,9 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/portfolio
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - FRONTEND_URL=http://localhost:5173
+      - DEBUG=True
     env_file:
       - ./backend/.env
 

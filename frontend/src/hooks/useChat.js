@@ -3,9 +3,9 @@ import { useState } from 'react'
 const API_URL = import.meta.env.VITE_API_URL
 
 const welcomeMessages = {
-  recruiter: "Hi! I am Sandeep's AI assistant. I see you are a recruiter — feel free to ask me about his skills, projects, experience, or how to get in touch with him. He is actively seeking entry-level roles in backend development and AI engineering.",
-  student: "Hi! Great to connect with a fellow developer! Ask me anything about Sandeep's projects like DueAlert or AutoPost, his tech stack (FastAPI, React, Google GenAI), or his hackathon experience.",
-  friend: "Hey! Sandeep says hi! Feel free to ask me anything about what he has been building lately — autonomous content agents, AI fee collection platforms, and more.",
+  recruiter: "Hi! I am Sandeep's AI assistant. I see you are a recruiter — feel free to ask me about his skills, projects, experience, or how to get in touch. He is actively seeking entry-level roles in backend development and AI engineering.",
+  student: "Hi! Great to connect with a fellow developer! Ask me anything about Sandeep's projects like DueAlert or AutoPost, his tech stack, or his hackathon experience.",
+  friend: "Hey! Sandeep says hi! Feel free to ask me anything about what he has been building lately.",
 }
 
 export function useChat() {
@@ -15,32 +15,22 @@ export function useChat() {
 
   const initializeChat = (selectedIdentity) => {
     setIdentity(selectedIdentity)
-    setMessages([
-      {
-        role: 'model',
-        content: welcomeMessages[selectedIdentity],
-      },
-    ])
+    setMessages([{ role: 'model', content: welcomeMessages[selectedIdentity] }])
   }
 
   const sendMessage = async (userMessage) => {
     const previousMessages = [...messages]
-    const userMsg = { role: 'user', content: userMessage }
-    setMessages((prev) => [...prev, userMsg])
+    setMessages((prev) => [...prev, { role: 'user', content: userMessage }])
     setLoading(true)
-
-    const isFirstUserMessage = previousMessages.filter((m) => m.role === 'user').length === 0
-    const contextualMessage = isFirstUserMessage && identity
-      ? `[Visitor type: ${identity}] ${userMessage}`
-      : userMessage
 
     try {
       const res = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: contextualMessage,
+          message: userMessage,
           history: previousMessages.slice(-6),
+          identity,               // sent every request — backend bakes it into system prompt
         }),
       })
 
@@ -59,12 +49,10 @@ export function useChat() {
   }
 
   const clearMessages = () => {
-    setMessages([
-      {
-        role: 'model',
-        content: welcomeMessages[identity] || "Hi! I am Sandeep's AI assistant. Ask me anything about his projects, skills, or experience.",
-      },
-    ])
+    setMessages([{
+      role: 'model',
+      content: welcomeMessages[identity] || "Hi! I am Sandeep's AI assistant. Ask me anything about his projects, skills, or experience.",
+    }])
   }
 
   return { messages, loading, sendMessage, clearMessages, initializeChat, identity }
