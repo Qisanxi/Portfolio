@@ -1,13 +1,6 @@
-const footerStyle = {
-  borderTop: '1px solid rgba(255,255,255,0.06)',
-}
+import { GitHubIcon, LinkedInIcon } from '../../lib/icons'
 
-const linkStyle = {
-  color: '#64748b',
-  fontSize: '12px',
-  fontFamily: 'monospace',
-  transition: 'color 0.2s',
-}
+const footerStyle = { borderTop: '1px solid rgba(255,255,255,0.06)' }
 
 export default function Footer() {
   return (
@@ -21,15 +14,34 @@ export default function Footer() {
         </div>
 
         <p className="text-slate-600 text-xs font-mono text-center">
-          Built with React, FastAPI, PostgreSQL and Google GenAI SDK
+          Built with React · FastAPI · PostgreSQL · Google GenAI SDK · Cloud Run
         </p>
 
-        <div className="flex items-center gap-4">
-          <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>GitHub</a>
-          <span className="text-slate-700 font-mono text-xs">/</span>
-          <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>LinkedIn</a>
-          <span className="text-slate-700 font-mono text-xs">/</span>
-          <a href="mailto:sandeepkumarultra615615@gmail.com" style={linkStyle} onMouseEnter={(e) => e.target.style.color = '#f8fafc'} onMouseLeave={(e) => e.target.style.color = '#64748b'}>Email</a>
+        <div className="flex items-center gap-5">
+          <a
+            href="https://github.com/Qisanxi"
+            target="_blank"
+            rel="noreferrer"
+            className="text-slate-600 hover:text-white transition-colors"
+            title="GitHub"
+          >
+            <GitHubIcon size={16} />
+          </a>
+          <a
+            href="https://www.linkedin.com/in/sandeep-qisanxi"
+            target="_blank"
+            rel="noreferrer"
+            className="text-slate-600 hover:text-white transition-colors"
+            title="LinkedIn"
+          >
+            <LinkedInIcon size={16} />
+          </a>
+          <a
+            href="mailto:sandeepkumarultra615615@gmail.com"
+            className="text-slate-600 hover:text-white transition-colors text-xs font-mono"
+          >
+            Email
+          </a>
         </div>
 
       </div>
