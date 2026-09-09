@@ -1,27 +1,24 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon } from '../../lib/icons'
 import Badge from '../ui/Badge'
 import Tag from '../ui/Tag'
 
-// Project screenshots live in /public/project_image/<Folder>/<file>.png
-// Files in /public are served as static assets at the root, so the URL
-// for project_image/DueAlert/duealert1.png is /project_image/DueAlert/duealert1.png.
-//
-// We list the filenames explicitly per project so there are no surprises
-// with filesystem casing (AutoPost has mixed Autopost/autopost naming).
+const ACCENT = '#C4913F'
+
 const projects = [
   {
     title: 'DueAlert',
-    description: 'AI-powered fee collection and student payment tracking platform for coaching centers. Identifies payment-risk patterns, generates personalized reminders with Gemini, and monitors collection from a centralized dashboard.',
+    description: 'AI-powered fee collection and student payment tracking platform for coaching centres. Identifies payment-risk patterns, generates personalised reminders with Gemini, and monitors collection from a centralised dashboard.',
     tags: ['Python', 'FastAPI', 'React.js', 'Google GenAI SDK', 'Firebase'],
     github: 'https://github.com/Qisanxi/DueAlert',
     demo: 'https://duealert-bbb61.web.app',
     badge: 'Gemini XPrize Hackathon',
-    badgeColor: '#D4A574',
-    imagesFolder: 'DueAlert',
-    images: ['duealert1.png', 'duealert2.png', 'duealert3.png', 'duealert4.png', 'duealert5.png', 'duealert6.png'],
+    badgeColor: '#C4913F',
+    folder: 'DueAlert',
+    images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
+    featured: true,
   },
   {
     title: 'AutoPost',
@@ -31,133 +28,126 @@ const projects = [
     demo: 'https://autopost-9c37c.web.app/#/',
     badge: 'Google Agentic Hackathon',
     badgeColor: '#4285f4',
-    imagesFolder: 'AutoPost',
-    images: ['Autopost1.png', 'Autopost2.png', 'Autopost3.png', 'Autopost4.png', 'Autopost5.png', 'Autopost6.png'],
+    folder: 'AutoPost',
+    images: ['Autopost1.png','Autopost2.png','Autopost3.png','Autopost4.png','Autopost5.png','Autopost6.png'],
+    featured: true,
   },
   {
     title: 'WhatsApp Priority Agent',
-    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm. Recognized by AMD Developer Program.',
+    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm. Recognised by AMD Developer Program.',
     tags: ['FastAPI', 'React', 'AMD ROCm', 'Qwen3', 'PostgreSQL'],
     github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
     demo: null,
     badge: 'AMD AI DevMaster Hackathon',
     badgeColor: '#f97316',
-    imagesFolder: 'whatsapp_priority_agent',
-    images: ['agent1.png', 'agent2.png', 'agent3.png', 'agent4.png', 'agent5.png'],
+    folder: 'whatsapp_priority_agent',
+    images: ['agent1.png','agent2.png','agent3.png','agent4.png','agent5.png'],
+    featured: false,
   },
   {
     title: 'FinSathi',
-    description: 'Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user\'s profile. References SEBI, AMFI, and IRDAI regulations.',
+    description: "Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user's profile. References SEBI, AMFI, and IRDAI regulations.",
     tags: ['Python', 'Streamlit', 'Google Gemini', 'Google GenAI SDK'],
     github: 'https://github.com/Qisanxi/finsathi.ai',
     demo: null,
     badge: null,
     badgeColor: null,
-    imagesFolder: 'finsathi',
-    images: ['finsathi1.png', 'finsathi2.png', 'finsathi3.png', 'finsathi4.png', 'finsathi5.png'],
+    folder: 'finsathi',
+    images: ['finsathi1.png','finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png'],
+    featured: false,
   },
 ]
 
-/**
- * Gallery — main image with thumbnail strip below.
- *
- * Layout:
- *   ┌──────────────────────────────────────┐
- *   │                                      │
- *   │   Main image (16:9, fixed 320px h)   │
- *   │                                      │
- *   ├──────────────────────────────────────┤
- *   │ ▒ ▒ ▒ ▒ ▒ ▒                          │  ← thumbnails, 56×40, object-fit cover
- *   ├──────────────────────────────────────┤
- *   │ [badge]                              │
- *   │ Title                          GH ↗  │
- *   │ Description...                       │
- *   │ [tags]                  [Live ↗]    │
- *   └──────────────────────────────────────┘
- *
- * - Click thumbnail → main image swaps with a 200ms opacity transition
- * - Only first image per card is eager-loaded; rest are lazy
- *   (28 PNGs / ~6MB total — without lazy load the page feels sluggish)
- * - Selected thumbnail gets a 2px accent border
- */
-function Gallery({ project }) {
-  const [activeIndex, setActiveIndex] = useState(0)
+// ─── AutoGallery ─────────────────────────────────────────────────────────────
+// Single <img> crossfades between screenshots every 2.5 s.
+// Pauses on hover. Thin accent progress bars at the bottom — clickable to jump.
+// Preloads next image before swap so the transition is seamless.
 
-  // Build full URLs once per project. useMemo prevents URL re-creation
-  // on every render cycle (which would otherwise re-decode the same image).
-  // Project images are stable for a project's lifetime, so an empty dep
-  // array is correct here — but eslint wants the dep declared, so we
-  // include `project` which only changes when the parent passes a different
-  // project instance (i.e. never, in practice).
-  const imageUrls = useMemo(
-    () => (project.images || []).map((file) => `/project_image/${project.imagesFolder}/${file}`),
-    [project.imagesFolder, project.images]
-  )
+function AutoGallery({ folder, images, height }) {
+  const urls = images.map((f) => `/project_image/${folder}/${f}`)
+  const [idx, setIdx]         = useState(0)
+  const [visible, setVisible] = useState(true)
+  const [paused, setPaused]   = useState(false)
 
-  if (imageUrls.length === 0) return null
+  // Preload the next image so the fade looks instant
+  useEffect(() => {
+    const next = new Image()
+    next.src = urls[(idx + 1) % urls.length]
+  }, [idx]) // eslint-disable-line
+
+  // Auto-advance
+  useEffect(() => {
+    if (paused || urls.length <= 1) return
+    const id = setInterval(() => goTo(), 2500)
+    return () => clearInterval(id)
+  }, [paused, idx, urls.length]) // eslint-disable-line
+
+  function goTo(next) {
+    setVisible(false)
+    setTimeout(() => {
+      setIdx(next !== undefined ? next : (i) => (i + 1) % urls.length)
+      setVisible(true)
+    }, 320)
+  }
+
+  const isAbsolute = height === '100%'
 
   return (
-    <div>
-      {/* Main image — 16:9 crop, fixed height so all cards are uniform */}
-      <div
-        className="w-full overflow-hidden rounded-t-xl bg-slate-900/40"
-        style={{ height: '320px' }}
-      >
-        <img
-          key={activeIndex}
-          src={imageUrls[activeIndex]}
-          alt={`${project.title} — screenshot ${activeIndex + 1}`}
-          loading={activeIndex === 0 ? 'eager' : 'lazy'}
-          decoding="async"
-          className="w-full h-full object-cover"
-          style={{
-            display: 'block',
-            animation: 'galleryFadeIn 220ms ease-out',
-          }}
-        />
-      </div>
+    <div
+      style={{
+        position: 'relative',
+        height: isAbsolute ? '100%' : height,
+        overflow: 'hidden',
+        background: '#0c0c0c',
+        flexShrink: 0,
+        ...(isAbsolute ? { position: 'absolute', inset: 0 } : {}),
+      }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <img
+        src={urls[idx]}
+        alt=""
+        style={{
+          width: '100%', height: '100%',
+          objectFit: 'cover', display: 'block',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.35s ease',
+        }}
+      />
 
-      {/* Thumbnail strip — horizontal, no scroll (max 6 thumbs per card) */}
-      {imageUrls.length > 1 && (
-        <div
-          className="flex gap-1.5 px-3 py-2.5 overflow-x-auto"
-          style={{
-            background: 'rgba(0,0,0,0.15)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          {imageUrls.map((url, i) => (
+      {/* Counter badge — shows on hover */}
+      {paused && urls.length > 1 && (
+        <div style={{
+          position: 'absolute', top: 8, right: 8,
+          background: 'rgba(0,0,0,0.6)', borderRadius: 4,
+          padding: '2px 8px', fontSize: 10,
+          fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.7)',
+          backdropFilter: 'blur(4px)',
+        }}>
+          {idx + 1} / {urls.length}
+        </div>
+      )}
+
+      {/* Progress bars */}
+      {urls.length > 1 && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          display: 'flex', gap: 2, padding: '0 8px 8px',
+        }}>
+          {urls.map((_, i) => (
             <button
-              key={url}
-              type="button"
-              onClick={() => setActiveIndex(i)}
-              aria-label={`View screenshot ${i + 1} of ${project.title}`}
-              aria-pressed={i === activeIndex}
-              className="flex-shrink-0 overflow-hidden rounded transition-all duration-150 cursor-pointer"
+              key={i}
+              onClick={(e) => { e.stopPropagation(); goTo(i) }}
+              aria-label={`Screenshot ${i + 1}`}
               style={{
-                width: '56px',
-                height: '40px',
-                border: i === activeIndex
-                  ? '2px solid var(--color-accent)'
-                  : '2px solid transparent',
-                opacity: i === activeIndex ? 1 : 0.55,
+                flex: 1, height: 3, border: 'none', padding: 0,
+                borderRadius: 2, cursor: 'pointer',
+                background: i === idx ? ACCENT : 'rgba(255,255,255,0.2)',
+                transform: i === idx ? 'scaleY(1.5)' : 'scaleY(1)',
+                transition: 'background 0.3s, transform 0.2s',
               }}
-              onMouseEnter={(e) => {
-                if (i !== activeIndex) e.currentTarget.style.opacity = '0.85'
-              }}
-              onMouseLeave={(e) => {
-                if (i !== activeIndex) e.currentTarget.style.opacity = '0.55'
-              }}
-            >
-              <img
-                src={url}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
-                style={{ display: 'block' }}
-              />
-            </button>
+            />
           ))}
         </div>
       )}
@@ -165,67 +155,86 @@ function Gallery({ project }) {
   )
 }
 
-function ProjectCard({ project }) {
+// ─── FeaturedCard — horizontal split ─────────────────────────────────────────
+
+function FeaturedCard({ project }) {
   return (
     <div
-      className="group flex flex-col rounded-xl border overflow-hidden transition-all duration-300
-                 hover:-translate-y-1 hover:shadow-xl"
-      style={{ background: '#1C1710', borderColor: 'rgba(196,145,63,0.1)' }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.1)' }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '42% 1fr',
+        borderRadius: 14, overflow: 'hidden',
+        border: '1px solid rgba(196,145,63,0.12)',
+        background: '#1C1710', minHeight: 260,
+        transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.38)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
     >
-      <Gallery project={project} />
+      {/* Left — gallery fills card height */}
+      <div style={{ position: 'relative' }}>
+        <AutoGallery folder={project.folder} images={project.images} height="100%" />
+        {/* Soft right-edge blend into content panel */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'linear-gradient(to right, transparent 70%, #1C1710)',
+        }} />
+      </div>
 
-      <div className="flex flex-col flex-1 p-6">
-        {/* Header row */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex flex-col gap-2">
-            {project.badge && (
-              <Badge color={project.badgeColor}>{project.badge}</Badge>
-            )}
-            <h3 className="text-white font-semibold text-lg leading-tight">{project.title}</h3>
+      {/* Right — content */}
+      <div style={{ padding: '26px 26px 22px', display: 'flex', flexDirection: 'column' }}>
+        {project.badge && (
+          <div style={{ marginBottom: 10 }}>
+            <Badge color={project.badgeColor}>{project.badge}</Badge>
           </div>
-          <div className="flex items-center gap-3 ml-4 shrink-0">
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-500 hover:text-white transition-colors"
-              title="Source code"
-            >
-              <GitHubIcon size={16} />
-            </a>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+          <h3 style={{ color: '#EDE4CF', fontSize: 18, fontFamily: 'var(--font-serif)', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>
+            {project.title}
+          </h3>
+          <div style={{ display: 'flex', gap: 12, flexShrink: 0, paddingTop: 2 }}>
+            <a href={project.github} target="_blank" rel="noreferrer"
+              style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+            ><GitHubIcon size={15} /></a>
             {project.demo && (
-              <a
-                href={project.demo}
-                target="_blank"
-                rel="noreferrer"
-                className="text-slate-500 hover:text-accent transition-colors"
-                title="Live demo"
-              >
-                <ExternalLink size={16} />
-              </a>
+              <a href={project.demo} target="_blank" rel="noreferrer"
+                style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+              ><ExternalLink size={15} /></a>
             )}
           </div>
         </div>
 
-        <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">{project.description}</p>
+        <p style={{ color: '#9A8E78', fontSize: 13, lineHeight: '1.7', margin: '0 0 18px', flex: 1 }}>
+          {project.description}
+        </p>
 
-        {/* Footer row — tags + live button */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {project.tags.map((tag) => (
-            <Tag key={tag} size="xs">{tag}</Tag>
-          ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          {project.tags.map((t) => <Tag key={t} size="xs">{t}</Tag>)}
           {project.demo && (
-            <a
-              href={project.demo}
-              target="_blank"
-              rel="noreferrer"
-              className="ml-auto flex items-center gap-1.5 text-xs font-mono text-accent
-                         border border-accent/30 hover:border-accent hover:bg-accent/10
-                         px-3 py-1 rounded transition-all duration-200"
+            <a href={project.demo} target="_blank" rel="noreferrer"
+              style={{
+                marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontSize: 11, fontFamily: 'var(--font-mono)', color: ACCENT,
+                border: '1px solid rgba(196,145,63,0.3)', borderRadius: 6,
+                padding: '4px 10px', textDecoration: 'none', transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.09)'; e.currentTarget.style.borderColor = ACCENT }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.3)' }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', animation: 'livePulse 2s infinite' }} />
               Live
             </a>
           )}
@@ -235,44 +244,144 @@ function ProjectCard({ project }) {
   )
 }
 
-export default function Projects() {
-  const headingRef = useScrollAnimation()
-  const gridRef = useScrollAnimation()
+// ─── CompactCard — vertical, small image ─────────────────────────────────────
 
-  // Uniform grid — no more featured/non-featured split.
-  // Signals "4 equally-strong projects" rather than "2 good + 2 filler".
+function CompactCard({ project }) {
+  return (
+    <div
+      style={{
+        display: 'flex', flexDirection: 'column',
+        borderRadius: 12, overflow: 'hidden',
+        border: '1px solid rgba(196,145,63,0.12)',
+        background: '#1C1710',
+        transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.3)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
+    >
+      <AutoGallery folder={project.folder} images={project.images} height={170} />
+
+      <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+        {project.badge && (
+          <div style={{ marginBottom: 8 }}>
+            <Badge color={project.badgeColor}>{project.badge}</Badge>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+          <h3 style={{ color: '#EDE4CF', fontSize: 15, fontFamily: 'var(--font-serif)', fontWeight: 600, margin: 0, lineHeight: 1.35 }}>
+            {project.title}
+          </h3>
+          <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 1 }}>
+            <a href={project.github} target="_blank" rel="noreferrer"
+              style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+            ><GitHubIcon size={14} /></a>
+            {project.demo && (
+              <a href={project.demo} target="_blank" rel="noreferrer"
+                style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+              ><ExternalLink size={14} /></a>
+            )}
+          </div>
+        </div>
+
+        <p style={{ color: '#9A8E78', fontSize: 12, lineHeight: '1.7', margin: '0 0 14px', flex: 1 }}>
+          {project.description}
+        </p>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
+          {project.tags.slice(0, 4).map((t) => <Tag key={t} size="xs">{t}</Tag>)}
+          {project.tags.length > 4 && (
+            <span style={{ fontSize: 10, color: '#5C5446', fontFamily: 'var(--font-mono)' }}>
+              +{project.tags.length - 4}
+            </span>
+          )}
+          {project.demo && (
+            <a href={project.demo} target="_blank" rel="noreferrer"
+              style={{
+                marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontSize: 10, fontFamily: 'var(--font-mono)', color: ACCENT,
+                border: '1px solid rgba(196,145,63,0.28)', borderRadius: 5,
+                padding: '3px 8px', textDecoration: 'none', transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.08)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+            >
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80' }} />
+              Live
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Section ─────────────────────────────────────────────────────────────────
+
+export default function Projects() {
+  const headingRef  = useScrollAnimation()
+  const featuredRef = useScrollAnimation()
+  const othersRef   = useScrollAnimation()
+
+  const featured = projects.filter((p) => p.featured)
+  const others   = projects.filter((p) => !p.featured)
+
   return (
     <section id="projects" style={{ padding: '72px 24px' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
-        <div ref={headingRef} className="reveal mb-12">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-            <div style={{ width: '28px', height: '1px', background: '#C4913F' }}></div>
-            <span style={{ color: '#C4913F', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>02. projects</span>
+        <div ref={headingRef} className="reveal" style={{ marginBottom: 48 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ width: 28, height: 1, background: ACCENT }} />
+            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>02. projects</span>
           </div>
-          <h2 style={{ color: '#EDE4CF', fontSize: 'clamp(26px, 5vw, 36px)', fontFamily: 'var(--font-serif)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 12px' }}>
+          <h2 style={{
+            color: '#EDE4CF', margin: '0 0 10px',
+            fontSize: 'clamp(26px, 5vw, 36px)',
+            fontFamily: 'var(--font-serif)', fontWeight: 600,
+            letterSpacing: '-0.02em', lineHeight: 1.2,
+          }}>
             Things I have built
           </h2>
-          <p style={{ color: '#9A8E78', fontSize: '14px', maxWidth: '480px', lineHeight: '1.6', margin: 0 }}>
-            AI-powered tools, autonomous agents, and real-world applications — built to solve actual problems.
+          <p style={{ color: '#9A8E78', fontSize: 14, lineHeight: '1.6', margin: 0 }}>
+            AI-powered tools, autonomous agents, and real-world applications.
+            Hover any card to pause — click the bars to jump to a screenshot.
           </p>
         </div>
 
-        {/* Uniform grid — all cards same size, same treatment.
-            md:grid-cols-2 keeps cards reasonable size on desktop.
-            gap-6 gives breathing room for the gallery thumbnails. */}
-        <div ref={gridRef} className="reveal-children grid md:grid-cols-2 gap-6">
-          {projects.map((p) => <ProjectCard key={p.title} project={p} />)}
+        {/* Featured — full-width horizontal cards */}
+        <div ref={featuredRef} className="reveal-children"
+          style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}>
+          {featured.map((p) => <FeaturedCard key={p.title} project={p} />)}
+        </div>
+
+        {/* Others — compact 2-col */}
+        <div ref={othersRef} className="reveal-children"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+          {others.map((p) => <CompactCard key={p.title} project={p} />)}
         </div>
 
       </div>
 
-      {/* Keyframes for the main image swap animation.
-          Scoped globally because <style> tags must live at the top level of a component tree. */}
       <style>{`
-        @keyframes galleryFadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+        /* Mobile: stack horizontal cards, single-col others */
+        @media (max-width: 640px) {
+          #projects .featured-grid { grid-template-columns: 1fr !important; }
+          #projects .others-grid   { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </section>
