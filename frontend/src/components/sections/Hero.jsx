@@ -113,7 +113,7 @@ export default function Hero() {
           </div>
 
           {/* Right — profile photo
-              Drop your photo at frontend/public/profile.jpg (or .png / .webp)
+              Source: frontend/public/profile.png (3:4 portrait, cropped to circle)
               The image hides itself automatically if the file doesn't exist yet. */}
           <div className="hidden md:flex flex-col items-center gap-4 flex-shrink-0">
             <div
@@ -126,7 +126,7 @@ export default function Hero() {
               }}
             >
               <img
-                src="/profile.jpg"
+                src="/profile.png"
                 alt="Sandeep Kumar"
                 onError={(e) => { e.currentTarget.closest('.relative').style.display = 'none' }}
                 style={{

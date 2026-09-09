@@ -1,9 +1,16 @@
+import { useState, useMemo } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon } from '../../lib/icons'
 import Badge from '../ui/Badge'
 import Tag from '../ui/Tag'
 
+// Project screenshots live in /public/project_image/<Folder>/<file>.png
+// Files in /public are served as static assets at the root, so the URL
+// for project_image/DueAlert/duealert1.png is /project_image/DueAlert/duealert1.png.
+//
+// We list the filenames explicitly per project so there are no surprises
+// with filesystem casing (AutoPost has mixed Autopost/autopost naming).
 const projects = [
   {
     title: 'DueAlert',
@@ -13,9 +20,8 @@ const projects = [
     demo: 'https://duealert-bbb61.web.app',
     badge: 'Gemini XPrize Hackathon',
     badgeColor: '#D4A574',
-    // Drop screenshot at frontend/public/images/duealert.png
-    image: '/images/duealert.png',
-    featured: true,
+    imagesFolder: 'DueAlert',
+    images: ['duealert1.png', 'duealert2.png', 'duealert3.png', 'duealert4.png', 'duealert5.png', 'duealert6.png'],
   },
   {
     title: 'AutoPost',
@@ -25,8 +31,8 @@ const projects = [
     demo: 'https://autopost-9c37c.web.app/#/',
     badge: 'Google Agentic Hackathon',
     badgeColor: '#4285f4',
-    image: '/images/autopost.png',
-    featured: true,
+    imagesFolder: 'AutoPost',
+    images: ['Autopost1.png', 'Autopost2.png', 'Autopost3.png', 'Autopost4.png', 'Autopost5.png', 'Autopost6.png'],
   },
   {
     title: 'WhatsApp Priority Agent',
@@ -36,8 +42,8 @@ const projects = [
     demo: null,
     badge: 'AMD AI DevMaster Hackathon',
     badgeColor: '#f97316',
-    image: '/images/whatsapp-agent.png',
-    featured: false,
+    imagesFolder: 'whatsapp_priority_agent',
+    images: ['agent1.png', 'agent2.png', 'agent3.png', 'agent4.png', 'agent5.png'],
   },
   {
     title: 'FinSathi',
@@ -47,38 +53,126 @@ const projects = [
     demo: null,
     badge: null,
     badgeColor: null,
-    image: '/images/finsathi.png',
-    featured: false,
+    imagesFolder: 'finsathi',
+    images: ['finsathi1.png', 'finsathi2.png', 'finsathi3.png', 'finsathi4.png', 'finsathi5.png'],
   },
 ]
 
-function ProjectImage({ src, alt }) {
+/**
+ * Gallery — main image with thumbnail strip below.
+ *
+ * Layout:
+ *   ┌──────────────────────────────────────┐
+ *   │                                      │
+ *   │   Main image (16:9, fixed 320px h)   │
+ *   │                                      │
+ *   ├──────────────────────────────────────┤
+ *   │ ▒ ▒ ▒ ▒ ▒ ▒                          │  ← thumbnails, 56×40, object-fit cover
+ *   ├──────────────────────────────────────┤
+ *   │ [badge]                              │
+ *   │ Title                          GH ↗  │
+ *   │ Description...                       │
+ *   │ [tags]                  [Live ↗]    │
+ *   └──────────────────────────────────────┘
+ *
+ * - Click thumbnail → main image swaps with a 200ms opacity transition
+ * - Only first image per card is eager-loaded; rest are lazy
+ *   (28 PNGs / ~6MB total — without lazy load the page feels sluggish)
+ * - Selected thumbnail gets a 2px accent border
+ */
+function Gallery({ project }) {
+  const [activeIndex, setActiveIndex] = useState(0)
+
+  // Build full URLs once per project. useMemo prevents URL re-creation
+  // on every render cycle (which would otherwise re-decode the same image).
+  // Project images are stable for a project's lifetime, so an empty dep
+  // array is correct here — but eslint wants the dep declared, so we
+  // include `project` which only changes when the parent passes a different
+  // project instance (i.e. never, in practice).
+  const imageUrls = useMemo(
+    () => (project.images || []).map((file) => `/project_image/${project.imagesFolder}/${file}`),
+    [project.imagesFolder, project.images]
+  )
+
+  if (imageUrls.length === 0) return null
+
   return (
-    <div
-      className="w-full overflow-hidden rounded-t-xl"
-      style={{ height: '180px', background: 'rgba(212,165,116,0.06)' }}
-    >
-      <img
-        src={src}
-        alt={alt}
-        onError={(e) => { e.currentTarget.closest('[data-img-wrap]').style.display = 'none' }}
-        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-      />
+    <div>
+      {/* Main image — 16:9 crop, fixed height so all cards are uniform */}
+      <div
+        className="w-full overflow-hidden rounded-t-xl bg-slate-900/40"
+        style={{ height: '320px' }}
+      >
+        <img
+          key={activeIndex}
+          src={imageUrls[activeIndex]}
+          alt={`${project.title} — screenshot ${activeIndex + 1}`}
+          loading={activeIndex === 0 ? 'eager' : 'lazy'}
+          decoding="async"
+          className="w-full h-full object-cover"
+          style={{
+            display: 'block',
+            animation: 'galleryFadeIn 220ms ease-out',
+          }}
+        />
+      </div>
+
+      {/* Thumbnail strip — horizontal, no scroll (max 6 thumbs per card) */}
+      {imageUrls.length > 1 && (
+        <div
+          className="flex gap-1.5 px-3 py-2.5 overflow-x-auto"
+          style={{
+            background: 'rgba(0,0,0,0.15)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          {imageUrls.map((url, i) => (
+            <button
+              key={url}
+              type="button"
+              onClick={() => setActiveIndex(i)}
+              aria-label={`View screenshot ${i + 1} of ${project.title}`}
+              aria-pressed={i === activeIndex}
+              className="flex-shrink-0 overflow-hidden rounded transition-all duration-150 cursor-pointer"
+              style={{
+                width: '56px',
+                height: '40px',
+                border: i === activeIndex
+                  ? '2px solid var(--color-accent)'
+                  : '2px solid transparent',
+                opacity: i === activeIndex ? 1 : 0.55,
+              }}
+              onMouseEnter={(e) => {
+                if (i !== activeIndex) e.currentTarget.style.opacity = '0.85'
+              }}
+              onMouseLeave={(e) => {
+                if (i !== activeIndex) e.currentTarget.style.opacity = '0.55'
+              }}
+            >
+              <img
+                src={url}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+                style={{ display: 'block' }}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-function ProjectCard({ project, featured }) {
+function ProjectCard({ project }) {
   return (
     <div
       className="group flex flex-col rounded-xl border overflow-hidden transition-all duration-300
                  hover:-translate-y-1 hover:border-accent-hover/40 hover:shadow-xl hover:shadow-accent/10"
       style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}
     >
-      {/* Project screenshot — hidden gracefully if file not yet added */}
-      <div data-img-wrap="">
-        <ProjectImage src={project.image} alt={`${project.title} screenshot`} />
-      </div>
+      <Gallery project={project} />
 
       <div className="flex flex-col flex-1 p-6">
         {/* Header row */}
@@ -141,12 +235,10 @@ function ProjectCard({ project, featured }) {
 
 export default function Projects() {
   const headingRef = useScrollAnimation()
-  const featuredRef = useScrollAnimation()
-  const othersRef = useScrollAnimation()
+  const gridRef = useScrollAnimation()
 
-  const featured = projects.filter((p) => p.featured)
-  const others = projects.filter((p) => !p.featured)
-
+  // Uniform grid — no more featured/non-featured split.
+  // Signals "4 equally-strong projects" rather than "2 good + 2 filler".
   return (
     <section id="projects" className="py-24 px-6">
       <div className="max-w-6xl mx-auto">
@@ -162,15 +254,23 @@ export default function Projects() {
           </p>
         </div>
 
-        <div ref={featuredRef} className="reveal-children grid md:grid-cols-2 gap-6 mb-6">
-          {featured.map((p) => <ProjectCard key={p.title} project={p} featured />)}
-        </div>
-
-        <div ref={othersRef} className="reveal-children grid md:grid-cols-2 gap-6">
-          {others.map((p) => <ProjectCard key={p.title} project={p} />)}
+        {/* Uniform grid — all cards same size, same treatment.
+            md:grid-cols-2 keeps cards reasonable size on desktop.
+            gap-6 gives breathing room for the gallery thumbnails. */}
+        <div ref={gridRef} className="reveal-children grid md:grid-cols-2 gap-6">
+          {projects.map((p) => <ProjectCard key={p.title} project={p} />)}
         </div>
 
       </div>
+
+      {/* Keyframes for the main image swap animation.
+          Scoped globally because <style> tags must live at the top level of a component tree. */}
+      <style>{`
+        @keyframes galleryFadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+      `}</style>
     </section>
   )
 }
