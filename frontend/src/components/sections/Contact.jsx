@@ -17,7 +17,7 @@ const inputStyle = {
   fontFamily: 'inherit',
 }
 
-const inputFocusStyle = { borderColor: 'rgba(99,102,241,0.6)' }
+const inputFocusStyle = { borderColor: 'rgba(212,165,116,0.6)' }
 
 const cardStyle = {
   background: 'rgba(255,255,255,0.02)',
@@ -71,8 +71,8 @@ export default function Contact() {
 
         <div ref={headingRef} className="reveal mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-indigo-400"></div>
-            <span className="text-indigo-400 text-sm font-mono">05. contact</span>
+            <div className="w-8 h-px bg-accent"></div>
+            <span className="text-accent text-sm font-mono">05. contact</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Get in touch</h2>
           <p className="text-slate-400 max-w-xl">
@@ -93,7 +93,7 @@ export default function Contact() {
                 </div>
                 <button
                   onClick={() => setSuccess(false)}
-                  className="text-indigo-400 text-sm font-mono mt-2 hover:text-indigo-300 transition-colors"
+                  className="text-accent text-sm font-mono mt-2 hover:text-accent-light transition-colors"
                 >
                   Send another
                 </button>
@@ -146,12 +146,12 @@ export default function Contact() {
           <div ref={infoRef} className="reveal flex flex-col gap-6">
             <div className="rounded-xl p-6" style={cardStyle}>
               <div className="flex items-center gap-3 mb-3">
-                <Mail size={16} className="text-indigo-400" />
+                <Mail size={16} className="text-accent" />
                 <span className="text-white text-sm font-medium">Email</span>
               </div>
               <a
                 href="mailto:sandeepkumarultra615615@gmail.com"
-                className="text-slate-400 text-sm hover:text-indigo-400 transition-colors font-mono break-all"
+                className="text-slate-400 text-sm hover:text-accent transition-colors font-mono break-all"
               >
                 sandeepkumarultra615615@gmail.com
               </a>
@@ -185,7 +185,7 @@ export default function Contact() {
 
             <div
               className="rounded-xl p-6"
-              style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}
+              style={{ background: 'rgba(212,165,116,0.05)', border: '1px solid rgba(212,165,116,0.15)' }}
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>

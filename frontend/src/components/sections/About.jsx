@@ -15,7 +15,7 @@ const timeline = [
     title: 'Prompt Engineering Research & Integration',
     subtitle: 'Remote Internship — Excelerate',
     description: 'Integrated AI prompts into backend workflows to improve system reliability and contextual accuracy. Strengthened backend-AI integration and scalable API design.',
-    color: '#6366f1',
+    color: '#D4A574',
   },
   {
     year: '2026',
@@ -51,8 +51,8 @@ export default function About() {
 
         <div ref={headingRef} className="reveal mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-indigo-400"></div>
-            <span className="text-indigo-400 text-sm font-mono">04. about</span>
+            <div className="w-8 h-px bg-accent"></div>
+            <span className="text-accent text-sm font-mono">04. about</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white">A bit about me</h2>
         </div>
@@ -73,7 +73,7 @@ export default function About() {
             </p>
             <p className="text-slate-400 leading-relaxed mb-8">
               Currently pursuing a BCA at Patliputra University and deepening expertise
-              in AI agents, RAG pipelines, and Cloud Run deployments.
+              in AI agents, RAG pipelines, and AWS App Runner deployments.
             </p>
 
             <div className="grid grid-cols-2 gap-4">
@@ -124,7 +124,7 @@ export default function About() {
 
             <div
               className="mt-8 p-4 rounded-xl"
-              style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}
+              style={{ background: 'rgba(212,165,116,0.08)', border: '1px solid rgba(212,165,116,0.2)' }}
             >
               <div className="flex items-center gap-2 mb-2">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>

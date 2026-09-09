@@ -19,10 +19,10 @@ const styles = {
   button: {
     position: 'fixed', bottom: '24px', right: '24px', zIndex: 100,
     width: '52px', height: '52px', borderRadius: '50%',
-    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+    background: 'linear-gradient(135deg, #D4A574, #B8895A)',
     border: 'none', cursor: 'pointer', display: 'flex',
     alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 24px rgba(99,102,241,0.4)',
+    boxShadow: '0 4px 24px rgba(212,165,116,0.4)',
     transition: 'transform 0.2s, box-shadow 0.2s',
   },
   // Responsive panel — min() keeps it from overflowing on 320-375px phones
@@ -39,11 +39,11 @@ const styles = {
   header: {
     padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.08)',
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    background: 'rgba(99,102,241,0.08)',
+    background: 'rgba(212,165,116,0.08)',
   },
   avatar: {
     width: '32px', height: '32px', borderRadius: '50%',
-    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+    background: 'linear-gradient(135deg, #D4A574, #B8895A)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontSize: '13px', fontWeight: 600, color: '#fff', fontFamily: 'monospace',
   },
@@ -67,12 +67,12 @@ const styles = {
   },
   sendBtn: {
     width: '38px', height: '38px', borderRadius: '10px',
-    background: '#6366f1', border: 'none', cursor: 'pointer',
+    background: '#D4A574', border: 'none', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     flexShrink: 0, transition: 'background 0.2s',
   },
   userBubble: {
-    alignSelf: 'flex-end', background: '#6366f1', color: '#fff',
+    alignSelf: 'flex-end', background: '#D4A574', color: '#fff',
     padding: '8px 12px', borderRadius: '12px 12px 2px 12px',
     fontSize: '13px', maxWidth: '80%', lineHeight: '1.5',
   },
@@ -82,7 +82,7 @@ const styles = {
     fontSize: '13px', maxWidth: '85%', lineHeight: '1.5',
   },
   dot: {
-    width: '6px', height: '6px', borderRadius: '50%', background: '#6366f1',
+    width: '6px', height: '6px', borderRadius: '50%', background: '#D4A574',
     display: 'inline-block', margin: '0 2px', animation: 'bounce 1.2s infinite ease-in-out',
   },
   optionBtn: {
@@ -92,15 +92,15 @@ const styles = {
     transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '12px',
   },
   optionBtnSelected: {
-    background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.5)',
+    background: 'rgba(212,165,116,0.15)', border: '1px solid rgba(212,165,116,0.5)',
   },
   submitBtn: {
-    width: '100%', background: '#6366f1', border: 'none', borderRadius: '10px',
+    width: '100%', background: '#D4A574', border: 'none', borderRadius: '10px',
     padding: '11px', color: '#fff', fontSize: '13px', fontWeight: 500,
     cursor: 'pointer', marginTop: '8px', transition: 'background 0.2s',
   },
   submitBtnDisabled: {
-    background: 'rgba(99,102,241,0.3)', cursor: 'not-allowed',
+    background: 'rgba(212,165,116,0.3)', cursor: 'not-allowed',
   },
 }
 
@@ -111,7 +111,7 @@ const markdownComponents = {
       href={href}
       target="_blank"
       rel="noreferrer"
-      style={{ color: '#818cf8', textDecoration: 'underline', wordBreak: 'break-all' }}
+      style={{ color: '#E8C9A0', textDecoration: 'underline', wordBreak: 'break-all' }}
     >
       {children}
     </a>
@@ -219,7 +219,7 @@ export default function ChatWidget() {
                       <div style={{ color: '#64748b', fontSize: '11px', marginTop: '2px' }}>{opt.desc}</div>
                     </div>
                     {selected === opt.key && (
-                      <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1', flexShrink: 0 }}></div>
+                      <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#D4A574', flexShrink: 0 }}></div>
                     )}
                   </button>
                 ))}
@@ -240,8 +240,8 @@ export default function ChatWidget() {
                 <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '10px' }}>Thank you!</div>
                 <div style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.7' }}>{thankyouMessages[selected]}</div>
               </div>
-              <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '14px', width: '100%' }}>
-                <div style={{ color: '#818cf8', fontSize: '12px', lineHeight: '1.7', fontFamily: 'monospace' }}>
+              <div style={{ background: 'rgba(212,165,116,0.08)', border: '1px solid rgba(212,165,116,0.2)', borderRadius: '10px', padding: '14px', width: '100%' }}>
+                <div style={{ color: '#E8C9A0', fontSize: '12px', lineHeight: '1.7', fontFamily: 'monospace' }}>
                   You can chat with me to know more about Sandeep, or explore the portfolio yourself.
                 </div>
               </div>
@@ -296,8 +296,8 @@ export default function ChatWidget() {
       <button
         style={styles.button}
         onClick={() => setOpen(!open)}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(99,102,241,0.5)' }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(99,102,241,0.4)' }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.1)'; e.currentTarget.style.boxShadow = '0 6px 28px rgba(212,165,116,0.5)' }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(212,165,116,0.4)' }}
       >
         {open ? <X size={20} color="#fff" /> : <MessageCircle size={20} color="#fff" />}
       </button>

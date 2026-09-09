@@ -18,7 +18,7 @@ Personal portfolio website with an AI-powered chatbot built to showcase projects
 | AI | Gemini 2.5 Flash API |
 | Rate Limiting | Slowapi |
 | DevOps | Docker, docker-compose |
-| Deploy | Vercel (frontend), Google Cloud Run (backend), Supabase (DB) |
+| Deploy | Vercel (frontend), AWS App Runner (backend), Supabase (DB) |
 
 ---
 
@@ -45,7 +45,7 @@ graph TB
         CW["ChatWidget\nOnboarding → Chat"]:::ui
     end
 
-    subgraph CloudRun["☁️ Google Cloud Run  —  FastAPI Backend"]
+    subgraph AppRunner["☁️ AWS App Runner  —  FastAPI Backend"]
         direction TB
         CORS["CORS Middleware\nFRONTEND_URL whitelist"]:::middleware
         RL["Slowapi Rate Limiter"]:::middleware
@@ -68,16 +68,16 @@ graph TB
     end
 
     Visitor -->|"Loads app"| Vercel
-    CW -->|"POST /api/chat\nVITE_API_URL"| Railway
-    CONTACT -->|"POST /api/contact\nVITE_API_URL"| Railway
+    CW -->|"POST /api/chat\nVITE_API_URL"| AppRunner
+    CONTACT -->|"POST /api/contact\nVITE_API_URL"| AppRunner
     AI_SVC -->|"GEMINI_API_KEY"| GoogleAI
     GoogleAI -->|"AI response"| AI_SVC
     CONTACT_RT -->|"INSERT"| Supabase
 
-    classDef ui fill:#1e1b4b,stroke:#6366f1,color:#c7d2fe
+    classDef ui fill:#2A2114,stroke:#D4A574,color:#E8C9A0
     classDef middleware fill:#172554,stroke:#3b82f6,color:#bfdbfe
-    classDef route fill:#0f172a,stroke:#6366f1,color:#e0e7ff,stroke-dasharray:4
-    classDef service fill:#1a1a2e,stroke:#818cf8,color:#c7d2fe
+    classDef route fill:#0f172a,stroke:#D4A574,color:#E8C9A0,stroke-dasharray:4
+    classDef service fill:#1a1a2e,stroke:#E8C9A0,color:#E8C9A0
     classDef db fill:#064e3b,stroke:#10b981,color:#a7f3d0
     classDef external fill:#431407,stroke:#f97316,color:#fed7aa
     classDef action fill:#1e293b,stroke:#475569,color:#94a3b8
@@ -91,7 +91,7 @@ graph TB
 sequenceDiagram
     actor V as Visitor
     participant FE as React Frontend<br/>(Vercel)
-    participant API as FastAPI Backend<br/>(Cloud Run)
+    participant API as FastAPI Backend<br/>(AWS App Runner)
     participant AI as Gemini 2.5 Flash<br/>(Google AI)
     participant DB as PostgreSQL<br/>(Supabase)
 
@@ -302,30 +302,64 @@ docker-compose up --build
 | Service | Platform | Notes |
 |---|---|---|
 | Frontend | Vercel | Set `VITE_API_URL` in Vercel dashboard |
-| Backend | Google Cloud Run | Deploy container with `gcloud run deploy`, set env vars in GCP Console |
+| Backend | AWS App Runner | Deploy container from ECR, set env vars in App Runner console |
 | Database | Supabase | Copy the connection string into `DATABASE_URL` |
 
-### Deploy backend to Cloud Run
+### Deploy backend to AWS App Runner
+
+AWS App Runner is the closest equivalent to Google Cloud Run on AWS — it deploys a container image from ECR, manages the load balancer, autoscaling, and TLS for you. You only pay for the compute while requests are in flight.
 
 ```bash
 # One-time setup
-gcloud auth login
-gcloud config set project YOUR_PROJECT_ID
-gcloud services enable run.googleapis.com artifactregistry.googleapis.com
+aws configure
+aws ecr create-repository --repository-name portfolio-backend --region ap-south-1
 
-# Build and deploy (run from repo root)
-gcloud builds submit ./backend --tag gcr.io/YOUR_PROJECT_ID/portfolio-backend
+# Build and push the image to ECR (run from repo root)
+aws ecr get-login-password --region ap-south-1 \
+  | docker login --username AWS --password-stdin \
+  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com
 
-gcloud run deploy portfolio-backend \
-  --image gcr.io/YOUR_PROJECT_ID/portfolio-backend \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars DATABASE_URL="...",GEMINI_API_KEY="...",FRONTEND_URL="https://sandeep-kumar.vercel.app",DEBUG="False"
+docker build -t portfolio-backend ./backend
+docker tag portfolio-backend:latest \
+  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest
+docker push \
+  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest
+
+# Create the App Runner service
+AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+aws apprunner create-service \
+  --service-name portfolio-backend \
+  --region ap-south-1 \
+  --source-configuration '{
+    "ImageRepository": {
+      "ImageIdentifier": "'$AWS_ACCOUNT_ID'.dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest",
+      "ImageRepositoryType": "ECR",
+      "ImageConfiguration": {
+        "Port": "8000",
+        "RuntimeEnvironmentVariables": {
+          "DATABASE_URL": "postgresql+asyncpg://...",
+          "GEMINI_API_KEY": "...",
+          "FRONTEND_URL": "https://sandeep-kumar.vercel.app",
+          "DEBUG": "False"
+        }
+      }
+    },
+    "AutoDeploymentsEnabled": true,
+    "AuthenticationConfiguration": {
+      "AccessRoleArn": "arn:aws:iam::'$AWS_ACCOUNT_ID':role/AppRunnerECRAccessRole"
+    }
+  }' \
+  --instance-configuration Cpu=0.25,Memory=0.5
 ```
 
-Cloud Run gives you a URL like `https://portfolio-backend-xxxx-uc.a.run.app`.
+App Runner gives you a URL like `https://xxxxxxxx.ap-south-1.awsapprunner.com`.
 Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
+
+**Notes:**
+- `ap-south-1` (Mumbai) is the lowest-latency region for Indian visitors; switch to your closest region if your audience is elsewhere.
+- `--instance-configuration Cpu=0.25,Memory=0.5` is the smallest valid size — adequate for a low-traffic portfolio (roughly $3–5/month on the free-tier-equivalent usage).
+- App Runner injects `X-Forwarded-For` automatically from its own trusted load balancer — no special uvicorn flags needed for the rate limiter to see real visitor IPs.
+- `AutoDeploymentsEnabled: true` redeploys automatically whenever you push a new `:latest` tag to ECR.
 
 ---
 
@@ -344,7 +378,8 @@ Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
 
 - [ ] **Recruiter email capture** — Collect email from recruiter visitors during onboarding and send an automated follow-up with project links. Needs Resend API integration.
 - [ ] **Resume PDF** — Add `resume.pdf` to `frontend/public/` so the Download CV button works.
-- [ ] **Google Fonts** — Add Space Grotesk for headings and JetBrains Mono for code elements.
+- [x] **Google Fonts** — Add Space Grotesk for headings and JetBrains Mono for code elements.
+- [ ] **AWS IaC** — Replace manual `aws` CLI deploy commands with a Terraform or AWS SAM template so the App Runner service is reproducible.
 - [ ] **Analytics** — Add Umami or Plausible for privacy-friendly visitor tracking.
 - [ ] **Blog section** — Minimal writing section for learnings on AI engineering and FastAPI.
 - [ ] **Alembic migrations** — Replace `create_all` startup with proper Alembic migration files.
