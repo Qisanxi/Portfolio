@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, Send, MessageCircle, Trash2 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useChat } from '../../hooks/useChat'
 
 const identityOptions = [
@@ -24,11 +25,15 @@ const styles = {
     boxShadow: '0 4px 24px rgba(99,102,241,0.4)',
     transition: 'transform 0.2s, box-shadow 0.2s',
   },
+  // Responsive panel — min() keeps it from overflowing on 320-375px phones
   panel: {
-    position: 'fixed', bottom: '88px', right: '24px', zIndex: 100,
-    width: '360px', borderRadius: '16px', background: '#0f172a',
+    position: 'fixed',
+    bottom: '88px', right: '16px',
+    zIndex: 100,
+    width: 'min(460px, calc(100vw - 32px))',
+    borderRadius: '16px', background: '#0f172a',
     border: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+    boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
     display: 'flex', flexDirection: 'column', overflow: 'hidden',
   },
   header: {
@@ -97,34 +102,30 @@ const styles = {
   submitBtnDisabled: {
     background: 'rgba(99,102,241,0.3)', cursor: 'not-allowed',
   },
-  backdrop: {
-    position: 'fixed', inset: 0, zIndex: 99,
-    background: 'rgba(0,0,0,0.75)',
-    backdropFilter: 'blur(6px)',
-    WebkitBackdropFilter: 'blur(6px)',
-  },
-  panelCentered: {
-    position: 'fixed', top: '50%', left: '50%',
-    transform: 'translate(-50%, -50%)',
-    zIndex: 100, width: '420px', borderRadius: '16px',
-    background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)',
-    boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-    display: 'flex', flexDirection: 'column', overflow: 'hidden',
-  },
+}
+
+// Markdown components — render links with correct styles in dark chat bubbles
+const markdownComponents = {
+  a: ({ href, children }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      style={{ color: '#818cf8', textDecoration: 'underline', wordBreak: 'break-all' }}
+    >
+      {children}
+    </a>
+  ),
+  p: ({ children }) => <p style={{ margin: '0 0 6px 0' }}>{children}</p>,
 }
 
 export default function ChatWidget() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false)   // starts closed — no auto-popup
   const [step, setStep] = useState('welcome')
   const [selected, setSelected] = useState('')
   const [input, setInput] = useState('')
   const { messages, loading, sendMessage, clearMessages, initializeChat } = useChat()
   const bottomRef = useRef(null)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setOpen(true), 2000)
-    return () => clearTimeout(timer)
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -191,113 +192,107 @@ export default function ChatWidget() {
         .chat-scroll::-webkit-scrollbar { width: 4px; }
         .chat-scroll::-webkit-scrollbar-track { background: transparent; }
         .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+        .bot-bubble p:last-child { margin-bottom: 0; }
       `}</style>
 
       {open && (
-        <>
-          <div style={styles.backdrop} />
+        <div style={styles.panel}>
+          <Header />
 
-
-          <div style={{
-            position: 'fixed', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            zIndex: 100, width: '460px',
-            height: step === 'chat' ? '560px' : 'auto',
-            borderRadius: '16px', background: '#0f172a',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-            display: 'flex', flexDirection: 'column', overflow: 'hidden',
-          }}>
-            <Header />
-
-            {step === 'welcome' && (
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                <div>
-                  <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>Welcome, Guest! 👋</div>
-                  <div style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6' }}>
-                    Before we chat, help me personalize your experience. I am Sandeep's AI assistant and I am here to help you learn more about him.
-                  </div>
-                </div>
-                <div style={{ color: '#64748b', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                  How do you identify yourself?
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {identityOptions.map((opt) => (
-                    <button key={opt.key} onClick={() => setSelected(opt.key)} style={{ ...styles.optionBtn, ...(selected === opt.key ? styles.optionBtnSelected : {}) }}>
-                      <span style={{ fontSize: '22px' }}>{opt.emoji}</span>
-                      <div>
-                        <div style={{ color: '#f8fafc', fontSize: '13px', fontWeight: 500 }}>{opt.label}</div>
-                        <div style={{ color: '#64748b', fontSize: '11px', marginTop: '2px' }}>{opt.desc}</div>
-                      </div>
-                      {selected === opt.key && (
-                        <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1', flexShrink: 0 }}></div>
-                      )}
-                    </button>
-                  ))}
-                </div>
-                <button onClick={handleIdentitySubmit} disabled={!selected} style={{ ...styles.submitBtn, ...(selected ? {} : styles.submitBtnDisabled) }}>
-                  Continue
-                </button>
-                <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#475569', fontSize: '12px', cursor: 'pointer', textAlign: 'center', fontFamily: 'monospace' }}>
-                  Skip and explore manually
-                </button>
-              </div>
-            )}
-
-            {step === 'thankyou' && (
-              <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px', textAlign: 'center' }}>
-                <div style={{ fontSize: '48px' }}>{identityOptions.find((o) => o.key === selected)?.emoji}</div>
-                <div>
-                  <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '10px' }}>Thank you!</div>
-                  <div style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.7' }}>{thankyouMessages[selected]}</div>
-                </div>
-                <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '14px', width: '100%' }}>
-                  <div style={{ color: '#818cf8', fontSize: '12px', lineHeight: '1.7', fontFamily: 'monospace' }}>
-                    You can chat with me to know more about Sandeep, or explore the portfolio yourself.
-                  </div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
-                  <button onClick={handleStartChat} style={{ ...styles.submitBtn, marginTop: 0, flex: 1 }}>Start chatting</button>
-                  <button onClick={() => setOpen(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '11px', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>
-                    Explore myself
-                  </button>
+          {step === 'welcome' && (
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div>
+                <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '6px' }}>Welcome, Guest! 👋</div>
+                <div style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.6' }}>
+                  Help me personalize your experience. I am Sandeep's AI assistant and I am here to help you learn more about him.
                 </div>
               </div>
-            )}
-
-            {step === 'chat' && (
-              <>
-                <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.2)' }}>
-                  <span style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>Ask me anything about Sandeep</span>
-                  <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>
-                    Exit interface
-                  </button>
-                </div>
-                <div className="chat-scroll" style={styles.messages}>
-                  {messages.map((msg, i) => (
-                    <div key={i} style={msg.role === 'user' ? styles.userBubble : styles.botBubble}>{msg.content}</div>
-                  ))}
-                  {loading && (
-                    <div style={styles.botBubble}>
-                      <span style={styles.dot} className="dot1"></span>
-                      <span style={styles.dot} className="dot2"></span>
-                      <span style={styles.dot} className="dot3"></span>
+              <div style={{ color: '#64748b', fontSize: '11px', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                How do you identify yourself?
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {identityOptions.map((opt) => (
+                  <button key={opt.key} onClick={() => setSelected(opt.key)} style={{ ...styles.optionBtn, ...(selected === opt.key ? styles.optionBtnSelected : {}) }}>
+                    <span style={{ fontSize: '22px' }}>{opt.emoji}</span>
+                    <div>
+                      <div style={{ color: '#f8fafc', fontSize: '13px', fontWeight: 500 }}>{opt.label}</div>
+                      <div style={{ color: '#64748b', fontSize: '11px', marginTop: '2px' }}>{opt.desc}</div>
                     </div>
-                  )}
-                  <div ref={bottomRef} />
-                </div>
-                <div style={styles.inputRow}>
-                  <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask me anything..." rows={1} style={styles.input} />
-                  <button onClick={handleSend} disabled={loading || !input.trim()} style={{ ...styles.sendBtn, opacity: loading || !input.trim() ? 0.5 : 1 }}>
-                    <Send size={15} color="#fff" />
+                    {selected === opt.key && (
+                      <div style={{ marginLeft: 'auto', width: '8px', height: '8px', borderRadius: '50%', background: '#6366f1', flexShrink: 0 }}></div>
+                    )}
                   </button>
+                ))}
+              </div>
+              <button onClick={handleIdentitySubmit} disabled={!selected} style={{ ...styles.submitBtn, ...(selected ? {} : styles.submitBtnDisabled) }}>
+                Continue
+              </button>
+              <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: '#475569', fontSize: '12px', cursor: 'pointer', textAlign: 'center', fontFamily: 'monospace' }}>
+                Skip and explore manually
+              </button>
+            </div>
+          )}
+
+          {step === 'thankyou' && (
+            <div style={{ padding: '28px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '18px', textAlign: 'center' }}>
+              <div style={{ fontSize: '48px' }}>{identityOptions.find((o) => o.key === selected)?.emoji}</div>
+              <div>
+                <div style={{ color: '#f8fafc', fontSize: '16px', fontWeight: 600, marginBottom: '10px' }}>Thank you!</div>
+                <div style={{ color: '#94a3b8', fontSize: '13px', lineHeight: '1.7' }}>{thankyouMessages[selected]}</div>
+              </div>
+              <div style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)', borderRadius: '10px', padding: '14px', width: '100%' }}>
+                <div style={{ color: '#818cf8', fontSize: '12px', lineHeight: '1.7', fontFamily: 'monospace' }}>
+                  You can chat with me to know more about Sandeep, or explore the portfolio yourself.
                 </div>
-              </>
-            )}
-          </div>
-        </>
+              </div>
+              <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                <button onClick={handleStartChat} style={{ ...styles.submitBtn, marginTop: 0, flex: 1 }}>Start chatting</button>
+                <button onClick={() => setOpen(false)} style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', padding: '11px', color: '#94a3b8', fontSize: '13px', cursor: 'pointer' }}>
+                  Explore myself
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'chat' && (
+            <>
+              <div style={{ padding: '8px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(0,0,0,0.2)' }}>
+                <span style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>Ask me anything about Sandeep</span>
+                <button onClick={() => setOpen(false)} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', padding: '4px 10px', color: '#94a3b8', fontSize: '11px', cursor: 'pointer', fontFamily: 'monospace' }}>
+                  Exit
+                </button>
+              </div>
+              <div className="chat-scroll" style={styles.messages}>
+                {messages.map((msg, i) => (
+                  msg.role === 'user' ? (
+                    <div key={i} style={styles.userBubble}>{msg.content}</div>
+                  ) : (
+                    <div key={i} className="bot-bubble" style={styles.botBubble}>
+                      <ReactMarkdown components={markdownComponents}>{msg.content}</ReactMarkdown>
+                    </div>
+                  )
+                ))}
+                {loading && (
+                  <div style={styles.botBubble}>
+                    <span style={styles.dot} className="dot1"></span>
+                    <span style={styles.dot} className="dot2"></span>
+                    <span style={styles.dot} className="dot3"></span>
+                  </div>
+                )}
+                <div ref={bottomRef} />
+              </div>
+              <div style={styles.inputRow}>
+                <textarea value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder="Ask me anything..." rows={1} style={styles.input} />
+                <button onClick={handleSend} disabled={loading || !input.trim()} style={{ ...styles.sendBtn, opacity: loading || !input.trim() ? 0.5 : 1 }}>
+                  <Send size={15} color="#fff" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       )}
 
+      {/* Floating button — always visible */}
       <button
         style={styles.button}
         onClick={() => setOpen(!open)}
