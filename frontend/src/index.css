@@ -1,24 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
 @import "tailwindcss";
 
 @theme {
-  /* Override Tailwind's font-sans and font-mono with our custom fonts */
-  --font-sans: 'Space Grotesk', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+  --font-sans: 'Outfit', system-ui, sans-serif;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-mono: 'DM Mono', 'Fira Code', ui-monospace, monospace;
 
-  /* Accent palette — warm amber, replaces the default indigo
-     so the portfolio stops looking like every other dev template.
-     All Tailwind utilities like bg-accent / text-accent / border-accent
-     / bg-accent/30 (opacity) work out of the box once these are declared. */
-  --color-accent:        #D4A574;   /* primary accent — indigo-500 was #6366f1 */
-  --color-accent-hover:  #B8895A;   /* pressed/hover — indigo-600 was #4f46e5 */
-  --color-accent-light:  #E8C9A0;   /* links, active states — indigo-400 was #818cf8 */
-  --color-accent-dark:   #3D2E1A;   /* gradient stop — indigo-950 was #312e81   */
+  /* Warm espresso palette — rich amber gold on deep warm dark */
+  --color-accent:        #C4913F;
+  --color-accent-hover:  #A8762B;
+  --color-accent-light:  #DDB87A;
+  --color-accent-dark:   #2E200A;
+
+  /* Ground tokens */
+  --color-ground:        #120E08;
+  --color-ground-card:   #1C1710;
+  --color-ground-raised: #221A0F;
+
+  /* Text tokens */
+  --color-text-base:     #EDE4CF;
+  --color-text-muted:    #9A8E78;
+  --color-text-faint:    #5C5446;
 }
 
 body {
   font-family: var(--font-sans);
+  background-color: #120E08;
+  color: #EDE4CF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Serif display headings */
+.font-display {
+  font-family: var(--font-serif);
 }
 
 /* Scroll-reveal animation classes */
@@ -33,24 +50,28 @@ body {
   transform: translateY(0);
 }
 
-/* Stagger children inside a reveal parent */
 .reveal-children > * {
   opacity: 0;
   transform: translateY(20px);
   transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
-/* Reveal all children at once when the parent becomes visible.
-   (Previously used hardcoded nth-child(1..6) rules — removed so a 7th+
-   card doesn't stay invisible. Set --i on individual children if you
-   want explicit stagger ordering.) */
 .reveal-children.visible > * {
   opacity: 1;
   transform: translateY(0);
   transition-delay: calc(var(--i, 0) * 0.05s);
 }
 
-/* Respect reduced-motion preference */
+/* Hide scrollbars globally, show on scroll */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196,145,63,0.15) transparent;
+}
+
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(196,145,63,0.15); border-radius: 2px; }
+
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-children > * {
     opacity: 1;

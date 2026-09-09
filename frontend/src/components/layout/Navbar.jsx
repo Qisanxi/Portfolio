@@ -3,16 +3,20 @@ import { Menu, X } from 'lucide-react'
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 
 const navLinks = [
-  { label: 'About',    href: 'about'    },
-  { label: 'Projects', href: 'projects' },
-  { label: 'Skills',   href: 'skills'   },
-  { label: 'Contact',  href: 'contact'  },
+  { label: 'About',    href: 'about'          },
+  { label: 'Projects', href: 'projects'        },
+  { label: 'Skills',   href: 'skills'          },
+  { label: 'Certs',    href: 'certifications'  },
+  { label: 'Blog',     href: 'blog'            },
+  { label: 'Contact',  href: 'contact'         },
 ]
+
+const sections = navLinks.map((l) => l.href)
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const activeSection = useScrollSpy(['about', 'projects', 'skills', 'contact'])
+  const activeSection = useScrollSpy(sections)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -33,51 +37,78 @@ export default function Navbar() {
         width: '100%',
         zIndex: 50,
         transition: 'all 0.3s',
-        background: scrolled ? 'rgba(15,23,42,0.85)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(12px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.08)' : 'none',
+        background: scrolled ? 'rgba(18,14,8,0.92)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(14px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(196,145,63,0.12)' : 'none',
       }}
     >
-      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
 
         {/* Logo */}
         <button onClick={() => scrollTo('hero')} className="flex items-center gap-1">
-          <span className="text-slate-500 font-mono text-sm">{'<'}</span>
-          <span className="text-white font-bold font-mono text-lg">SK</span>
-          <span className="text-accent font-mono text-sm">{'/>'}</span>
+          <span style={{ color: '#5C5446', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>{'<'}</span>
+          <span style={{ color: '#EDE4CF', fontFamily: 'var(--font-serif)', fontSize: '18px', fontWeight: 600, letterSpacing: '-0.02em' }}>SK</span>
+          <span style={{ color: '#C4913F', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>{'/>'}</span>
         </button>
 
         {/* Availability badge - desktop */}
-        <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full border border-green-500/20 bg-green-500/5">
-          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-          <span className="text-green-400 text-xs font-medium">Available for opportunities</span>
+        <div
+          className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full"
+          style={{ background: 'rgba(74,222,128,0.06)', border: '1px solid rgba(74,222,128,0.18)' }}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+          <span style={{ color: '#4ade80', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>Open to work</span>
         </div>
 
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-5">
           {navLinks.map((link) => (
             <button
               key={link.href}
               onClick={() => scrollTo(link.href)}
-              style={{ color: activeSection === link.href ? '#E8C9A0' : '#94a3b8' }}
-              className="relative text-sm transition-colors hover:text-white"
+              style={{
+                color: activeSection === link.href ? '#C4913F' : '#9A8E78',
+                fontSize: '13px',
+                fontFamily: 'var(--font-mono)',
+                position: 'relative',
+                transition: 'color 0.2s',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: '2px 0',
+              }}
             >
               {link.label}
               <span
-                className="absolute -bottom-1 left-1/2 w-1 h-1 rounded-full bg-accent transition-all duration-300"
                 style={{
-                  opacity: activeSection === link.href ? 1 : 0,
-                  transform: `translateX(-50%) scale(${activeSection === link.href ? 1 : 0})`,
+                  position: 'absolute',
+                  bottom: '-2px',
+                  left: '50%',
+                  transform: `translateX(-50%) scaleX(${activeSection === link.href ? 1 : 0})`,
+                  width: '100%',
+                  height: '1px',
+                  background: '#C4913F',
+                  transition: 'transform 0.25s ease',
                 }}
               />
             </button>
           ))}
 
-          {/* Resume link - desktop */}
           <a
             href="/resume.pdf"
             download
-            className="text-sm font-mono text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 px-4 py-1.5 rounded transition-all duration-200"
+            style={{
+              fontSize: '12px',
+              fontFamily: 'var(--font-mono)',
+              color: '#C4913F',
+              border: '1px solid rgba(196,145,63,0.35)',
+              padding: '5px 14px',
+              borderRadius: '6px',
+              transition: 'all 0.2s',
+              textDecoration: 'none',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.1)'; e.currentTarget.style.borderColor = '#C4913F' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
           >
             resume.pdf
           </a>
@@ -85,7 +116,8 @@ export default function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-slate-400 hover:text-white transition-colors"
+          style={{ color: '#9A8E78', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
+          className="md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -96,32 +128,49 @@ export default function Navbar() {
       {menuOpen && (
         <div
           style={{
-            background: 'rgba(15,23,42,0.97)',
-            borderTop: '1px solid rgba(255,255,255,0.08)',
+            background: 'rgba(18,14,8,0.97)',
+            borderTop: '1px solid rgba(196,145,63,0.1)',
           }}
-          className="md:hidden px-6 py-6 flex flex-col gap-6"
+          className="md:hidden px-6 py-6 flex flex-col gap-5"
         >
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span className="text-green-400 text-xs font-medium">Available for opportunities</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+            <span style={{ color: '#4ade80', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>Open to work</span>
           </div>
 
           {navLinks.map((link) => (
             <button
               key={link.href}
               onClick={() => scrollTo(link.href)}
-              className="text-slate-400 hover:text-white text-sm text-left font-mono transition-colors"
+              style={{
+                color: activeSection === link.href ? '#C4913F' : '#9A8E78',
+                fontSize: '14px',
+                fontFamily: 'var(--font-mono)',
+                textAlign: 'left',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'color 0.2s',
+              }}
             >
-              <span className="text-accent mr-2">{'~/'}</span>
+              <span style={{ color: '#5C5446', marginRight: '8px' }}>{'~/'}</span>
               {link.label}
             </button>
           ))}
 
-          {/* Resume link - mobile */}
           <a
             href="/resume.pdf"
             download
-            className="text-sm font-mono text-accent border border-accent/40 px-4 py-2 rounded text-center"
+            style={{
+              fontSize: '13px',
+              fontFamily: 'var(--font-mono)',
+              color: '#C4913F',
+              border: '1px solid rgba(196,145,63,0.35)',
+              padding: '8px 14px',
+              borderRadius: '6px',
+              textAlign: 'center',
+              textDecoration: 'none',
+            }}
           >
             resume.pdf
           </a>

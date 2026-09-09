@@ -1,109 +1,120 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
-import Tag from '../ui/Tag'
+
+const ACCENT = '#C4913F'
+const TEXT = '#EDE4CF'
+const MUTED = '#9A8E78'
+const FAINT = '#5C5446'
 
 const skillGroups = [
   {
-    category: 'Web Development',
-    number: '01',
-    color: '#D4A574',
+    category: 'Web & Backend',
+    color: '#C4913F',
     skills: ['React', 'FastAPI', 'Django', 'Python', 'REST APIs', 'Java'],
   },
   {
     category: 'Databases',
-    number: '02',
-    color: '#38bdf8',
+    color: '#7BC47A',
     skills: ['PostgreSQL', 'MongoDB', 'Firebase', 'SQL'],
   },
   {
     category: 'AI / LLMs',
-    number: '03',
-    color: '#f97316',
+    color: '#E07B54',
     skills: ['Agents', 'RAG', 'LLMs', 'Prompt Engineering', 'Google GenAI SDK', 'Google ADK'],
   },
   {
     category: 'Cloud & Infra',
-    number: '04',
-    color: '#10b981',
+    color: '#7BC47A',
     skills: ['AWS App Runner', 'ECR', 'Docker', 'Linux'],
   },
   {
     category: 'Tools',
-    number: '05',
-    color: '#a78bfa',
+    color: '#A887E8',
     skills: ['Git', 'GitHub', 'VS Code', 'Claude Code', 'Codex', 'Postman'],
   },
   {
     category: 'Mobile',
-    number: '06',
-    color: '#fb7185',
+    color: '#E8A887',
     skills: ['Flutter', 'Dart'],
   },
 ]
 
-const cardStyle = {
-  background: 'rgba(255,255,255,0.02)',
-  border: '1px solid rgba(255,255,255,0.08)',
-}
-
-function SkillCard({ group }) {
+function Pill({ label, color }) {
   return (
-    <div className="rounded-xl p-6 hover:border-accent-hover/30 transition-colors duration-300" style={cardStyle}>
-      <div className="flex items-center gap-3 mb-5">
-        <span className="font-mono text-xs" style={{ color: group.color }}>{group.number}</span>
-        <div className="w-px h-4" style={{ background: group.color + '40' }}></div>
-        <span className="text-white font-medium text-sm">{group.category}</span>
-        <span
-          className="w-2 h-2 rounded-full ml-auto"
-          style={{ background: group.color, boxShadow: `0 0 6px ${group.color}80` }}
-        ></span>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        {group.skills.map((skill) => (
-          <Tag key={skill} color={group.color}>{skill}</Tag>
-        ))}
-      </div>
-    </div>
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      padding: '3px 10px',
+      borderRadius: '20px',
+      fontSize: '11px',
+      fontFamily: 'var(--font-mono)',
+      color: color,
+      background: color + '14',
+      border: `1px solid ${color}28`,
+      lineHeight: '1.6',
+      whiteSpace: 'nowrap',
+    }}>{label}</span>
   )
 }
 
 export default function Skills() {
   const headingRef = useScrollAnimation()
-  const gridRef = useScrollAnimation()
-  const footerRef = useScrollAnimation()
+  const tableRef = useScrollAnimation()
 
   return (
-    <section id="skills" className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section id="skills" style={{ padding: '72px 24px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
 
-        <div ref={headingRef} className="reveal mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-accent"></div>
-            <span className="text-accent text-sm font-mono">03. skills</span>
+        <div ref={headingRef} className="reveal" style={{ marginBottom: '40px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ width: '28px', height: '1px', background: ACCENT }}></div>
+            <span style={{ color: ACCENT, fontSize: '12px', fontFamily: 'var(--font-mono)' }}>03. skills</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">What I work with</h2>
-          <p className="text-slate-400 max-w-xl">
-            Technologies I use regularly across backend, AI, cloud, and mobile projects.
-          </p>
+          <h2 style={{ color: TEXT, fontSize: 'clamp(26px, 5vw, 36px)', fontFamily: 'var(--font-serif)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2, margin: 0 }}>
+            What I work with
+          </h2>
         </div>
 
-        <div ref={gridRef} className="reveal-children grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skillGroups.map((group) => (
-            <SkillCard key={group.category} group={group} />
+        {/* Compact table layout — category label left, pills right */}
+        <div ref={tableRef} className="reveal" style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+          {skillGroups.map((group, i) => (
+            <div
+              key={group.category}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '140px 1fr',
+                gap: '12px 20px',
+                alignItems: 'center',
+                padding: '14px 0',
+                borderBottom: i < skillGroups.length - 1 ? '1px solid rgba(196,145,63,0.08)' : 'none',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: group.color, boxShadow: `0 0 6px ${group.color}80`, flexShrink: 0 }} />
+                <span style={{ color: MUTED, fontSize: '12px', fontFamily: 'var(--font-mono)' }}>{group.category}</span>
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {group.skills.map((skill) => (
+                  <Pill key={skill} label={skill} color={group.color} />
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
-        <div
-          ref={footerRef}
-          className="reveal mt-12 p-6 rounded-xl"
-          style={{ background: 'rgba(212,165,116,0.05)', border: '1px solid rgba(212,165,116,0.15)' }}
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
-            <span className="text-accent text-sm font-mono">currently exploring</span>
-          </div>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Deepening expertise in AI agents, RAG pipelines, and LLM tooling with Google ADK and Claude Code.
-            Expanding cloud skills on AWS App Runner for scalable low-cost deployments.
+        {/* "Currently learning" strip */}
+        <div style={{
+          marginTop: '28px',
+          padding: '14px 18px',
+          borderRadius: '10px',
+          background: 'rgba(196,145,63,0.04)',
+          border: '1px solid rgba(196,145,63,0.14)',
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '12px',
+        }}>
+          <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', flexShrink: 0, marginTop: '5px', boxShadow: '0 0 6px rgba(74,222,128,0.6)' }}></span>
+          <p style={{ color: MUTED, fontSize: '12px', fontFamily: 'var(--font-mono)', lineHeight: '1.7', margin: 0 }}>
+            Currently deepening: <span style={{ color: ACCENT }}>AI agents · RAG pipelines · LLM tooling with Google ADK · AWS App Runner deployments</span>
           </p>
         </div>
 

@@ -1,33 +1,13 @@
 import { useState } from 'react'
-import { Mail, Send, CheckCircle } from 'lucide-react'
+import { Send, CheckCircle, Mail } from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon, LinkedInIcon } from '../../lib/icons'
-import Button from '../ui/Button'
 
-const inputStyle = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.1)',
-  color: '#f8fafc',
-  width: '100%',
-  padding: '12px 14px',
-  borderRadius: '10px',
-  fontSize: '14px',
-  outline: 'none',
-  transition: 'border-color 0.2s',
-  fontFamily: 'inherit',
-}
-
-const inputFocusStyle = { borderColor: 'rgba(212,165,116,0.6)' }
-
-const cardStyle = {
-  background: 'rgba(255,255,255,0.02)',
-  border: '1px solid rgba(255,255,255,0.08)',
-}
-
-const socialLinkStyle = {
-  background: 'rgba(255,255,255,0.04)',
-  border: '1px solid rgba(255,255,255,0.08)',
-}
+const ACCENT = '#C4913F'
+const TEXT = '#EDE4CF'
+const MUTED = '#9A8E78'
+const FAINT = '#5C5446'
+const GROUND_2 = '#1C1710'
 
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -37,18 +17,13 @@ export default function Contact() {
   const [focused, setFocused] = useState('')
 
   const headingRef = useScrollAnimation()
-  const formRef = useScrollAnimation()
-  const infoRef = useScrollAnimation()
+  const bodyRef = useScrollAnimation()
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
   const handleSubmit = async () => {
-    if (!form.name || !form.email || !form.message) {
-      setError('Please fill in all fields.')
-      return
-    }
-    setLoading(true)
-    setError('')
+    if (!form.name || !form.email || !form.message) { setError('Please fill in all fields.'); return }
+    setLoading(true); setError('')
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
         method: 'POST',
@@ -65,134 +40,161 @@ export default function Contact() {
     }
   }
 
-  return (
-    <section id="contact" className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
+  const inputStyle = (name) => ({
+    background: GROUND_2,
+    border: `1px solid ${focused === name ? 'rgba(196,145,63,0.5)' : 'rgba(196,145,63,0.1)'}`,
+    color: TEXT,
+    width: '100%',
+    padding: '10px 13px',
+    borderRadius: '8px',
+    fontSize: '13px',
+    outline: 'none',
+    transition: 'border-color 0.2s',
+    fontFamily: 'var(--font-sans)',
+    boxSizing: 'border-box',
+  })
 
-        <div ref={headingRef} className="reveal mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-accent"></div>
-            <span className="text-accent text-sm font-mono">05. contact</span>
+  return (
+    <section id="contact" style={{ padding: '72px 24px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+
+        <div ref={headingRef} className="reveal" style={{ marginBottom: '36px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ width: '28px', height: '1px', background: ACCENT }}></div>
+            <span style={{ color: ACCENT, fontSize: '12px', fontFamily: 'var(--font-mono)' }}>07. contact</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Get in touch</h2>
-          <p className="text-slate-400 max-w-xl">
-            Open to entry-level roles, internships, and interesting projects. Drop a message or reach out directly.
+          <h2 style={{ color: TEXT, fontSize: 'clamp(26px, 5vw, 36px)', fontFamily: 'var(--font-serif)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 12px' }}>
+            Get in touch
+          </h2>
+          <p style={{ color: MUTED, fontSize: '14px', lineHeight: '1.6', margin: 0, maxWidth: '480px' }}>
+            Open to entry-level roles, internships, and interesting projects.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div ref={bodyRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
 
           {/* Form */}
-          <div ref={formRef} className="reveal flex flex-col gap-4">
+          <div>
             {success ? (
-              <div className="flex flex-col items-center justify-center py-16 gap-4">
-                <CheckCircle size={40} className="text-green-400" />
-                <div className="text-white font-medium">Message sent!</div>
-                <div className="text-slate-400 text-sm text-center">
-                  Thanks for reaching out. I will get back to you soon.
-                </div>
-                <button
-                  onClick={() => setSuccess(false)}
-                  className="text-accent text-sm font-mono mt-2 hover:text-accent-light transition-colors"
-                >
-                  Send another
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', padding: '32px 0', textAlign: 'center' }}>
+                <CheckCircle size={36} color="#4ade80" />
+                <div style={{ color: TEXT, fontWeight: 500 }}>Message sent!</div>
+                <div style={{ color: MUTED, fontSize: '13px' }}>I'll get back to you soon.</div>
+                <button onClick={() => setSuccess(false)} style={{ color: ACCENT, fontSize: '12px', fontFamily: 'var(--font-mono)', background: 'none', border: 'none', cursor: 'pointer', marginTop: '4px' }}>
+                  Send another →
                 </button>
               </div>
             ) : (
-              <>
-                {[
-                  { name: 'name', label: 'name', type: 'text', placeholder: 'Your name' },
-                  { name: 'email', label: 'email', type: 'email', placeholder: 'your@email.com' },
-                ].map(({ name, label, type, placeholder }) => (
-                  <div key={name}>
-                    <label className="text-slate-500 text-xs font-mono mb-2 block">{label}</label>
-                    <input
-                      name={name}
-                      type={type}
-                      value={form[name]}
-                      onChange={handleChange}
-                      onFocus={() => setFocused(name)}
-                      onBlur={() => setFocused('')}
-                      placeholder={placeholder}
-                      style={{ ...inputStyle, ...(focused === name ? inputFocusStyle : {}) }}
-                    />
-                  </div>
-                ))}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  {[
+                    { name: 'name',  type: 'text',  placeholder: 'Your name' },
+                    { name: 'email', type: 'email', placeholder: 'your@email.com' },
+                  ].map(({ name, type, placeholder }) => (
+                    <div key={name}>
+                      <label style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)', marginBottom: '5px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{name}</label>
+                      <input
+                        name={name} type={type} value={form[name]}
+                        onChange={handleChange}
+                        onFocus={() => setFocused(name)} onBlur={() => setFocused('')}
+                        placeholder={placeholder}
+                        style={inputStyle(name)}
+                      />
+                    </div>
+                  ))}
+                </div>
+
                 <div>
-                  <label className="text-slate-500 text-xs font-mono mb-2 block">message</label>
+                  <label style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)', marginBottom: '5px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.06em' }}>message</label>
                   <textarea
-                    name="message"
-                    value={form.message}
+                    name="message" value={form.message}
                     onChange={handleChange}
-                    onFocus={() => setFocused('message')}
-                    onBlur={() => setFocused('')}
+                    onFocus={() => setFocused('message')} onBlur={() => setFocused('')}
                     placeholder="What would you like to say?"
-                    rows={5}
-                    style={{ ...inputStyle, ...(focused === 'message' ? inputFocusStyle : {}), resize: 'none' }}
+                    rows={4}
+                    style={{ ...inputStyle('message'), resize: 'none' }}
                   />
                 </div>
 
-                {error && <p className="text-red-400 text-xs font-mono">{error}</p>}
+                {error && <p style={{ color: '#f87171', fontSize: '12px', fontFamily: 'var(--font-mono)', margin: 0 }}>{error}</p>}
 
-                <Button onClick={handleSubmit} disabled={loading}>
-                  <Send size={15} />
-                  {loading ? 'Sending...' : 'Send message'}
-                </Button>
-              </>
+                <button
+                  onClick={handleSubmit}
+                  disabled={loading}
+                  style={{
+                    background: ACCENT, border: 'none', borderRadius: '8px',
+                    padding: '11px', color: '#fff', fontSize: '13px', fontWeight: 500,
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    opacity: loading ? 0.7 : 1, transition: 'opacity 0.2s',
+                    fontFamily: 'var(--font-sans)',
+                  }}
+                >
+                  <Send size={14} />
+                  {loading ? 'Sending…' : 'Send message'}
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Info */}
-          <div ref={infoRef} className="reveal flex flex-col gap-6">
-            <div className="rounded-xl p-6" style={cardStyle}>
-              <div className="flex items-center gap-3 mb-3">
-                <Mail size={16} className="text-accent" />
-                <span className="text-white text-sm font-medium">Email</span>
-              </div>
-              <a
-                href="mailto:sandeepkumarultra615615@gmail.com"
-                className="text-slate-400 text-sm hover:text-accent transition-colors font-mono break-all"
-              >
-                sandeepkumarultra615615@gmail.com
-              </a>
+          {/* Right — compact links */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Direct links */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {[
+                {
+                  icon: <Mail size={14} />,
+                  label: 'Email',
+                  value: 'sandeepkumarultra615615@gmail.com',
+                  href: 'mailto:sandeepkumarultra615615@gmail.com',
+                },
+                {
+                  icon: <GitHubIcon size={14} />,
+                  label: 'GitHub',
+                  value: 'github.com/Qisanxi',
+                  href: 'https://github.com/Qisanxi',
+                },
+                {
+                  icon: <LinkedInIcon size={14} />,
+                  label: 'LinkedIn',
+                  value: 'linkedin.com/in/sandeep-qisanxi',
+                  href: 'https://www.linkedin.com/in/sandeep-qisanxi',
+                },
+              ].map(({ icon, label, value, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target={href.startsWith('mailto') ? '_self' : '_blank'}
+                  rel="noreferrer"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 14px', borderRadius: '8px',
+                    background: GROUND_2,
+                    border: '1px solid rgba(196,145,63,0.1)',
+                    textDecoration: 'none', transition: 'border-color 0.2s',
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.1)' }}
+                >
+                  <span style={{ color: ACCENT }}>{icon}</span>
+                  <div>
+                    <div style={{ color: MUTED, fontSize: '10px', fontFamily: 'var(--font-mono)', marginBottom: '2px' }}>{label}</div>
+                    <div style={{ color: TEXT, fontSize: '12px', fontFamily: 'var(--font-mono)', wordBreak: 'break-all' }}>{value}</div>
+                  </div>
+                </a>
+              ))}
             </div>
 
-            <div className="rounded-xl p-6" style={cardStyle}>
-              <div className="text-slate-500 text-xs font-mono mb-4 uppercase tracking-widest">Elsewhere</div>
-              <div className="flex flex-col gap-3">
-                <a
-                  href="https://github.com/Qisanxi"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors"
-                  style={socialLinkStyle}
-                >
-                  <span className="text-slate-400"><GitHubIcon size={18} /></span>
-                  <span className="text-slate-400 text-sm font-mono">github.com/Qisanxi</span>
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/sandeep-qisanxi"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/5 transition-colors"
-                  style={socialLinkStyle}
-                >
-                  <span className="text-slate-400"><LinkedInIcon size={18} /></span>
-                  <span className="text-slate-400 text-sm font-mono">linkedin.com/in/sandeep-qisanxi</span>
-                </a>
-              </div>
-            </div>
-
-            <div
-              className="rounded-xl p-6"
-              style={{ background: 'rgba(212,165,116,0.05)', border: '1px solid rgba(212,165,116,0.15)' }}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                <span className="text-green-400 text-xs font-mono">available now</span>
-              </div>
-              <p className="text-slate-400 text-xs leading-relaxed">
-                Seeking entry-level roles in backend development and AI engineering.
+            {/* Availability */}
+            <div style={{
+              padding: '12px 14px', borderRadius: '8px',
+              background: 'rgba(74,222,128,0.04)',
+              border: '1px solid rgba(74,222,128,0.14)',
+              display: 'flex', alignItems: 'center', gap: '10px',
+            }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#4ade80', flexShrink: 0, boxShadow: '0 0 6px rgba(74,222,128,0.6)' }}></span>
+              <p style={{ color: '#86efac', fontSize: '12px', fontFamily: 'var(--font-mono)', lineHeight: '1.5', margin: 0 }}>
+                Available for entry-level backend &amp; AI roles
               </p>
             </div>
           </div>
