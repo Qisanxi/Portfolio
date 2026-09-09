@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import { Mail, ArrowDown } from 'lucide-react'
-import Button from '../ui/Button'
+import { GitHubIcon, LinkedInIcon } from '../../lib/icons'
+
+const ACCENT = '#C4913F'
+const TEXT = '#EDE4CF'
+const MUTED = '#9A8E78'
+const FAINT = '#5C5446'
 
 const roles = [
   'Software Engineer',
@@ -8,8 +13,6 @@ const roles = [
   'AI-Integrated Full-Stack Dev',
   'FastAPI & React Developer',
 ]
-
-import { GitHubIcon, LinkedInIcon } from '../../lib/icons'
 
 export default function Hero() {
   const [roleIndex, setRoleIndex] = useState(0)
@@ -23,7 +26,7 @@ export default function Hero() {
     if (!isDeleting && displayed.length < current.length) {
       timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length + 1)), 80)
     } else if (!isDeleting && displayed.length === current.length) {
-      timeout = setTimeout(() => setIsDeleting(true), 2000)
+      timeout = setTimeout(() => setIsDeleting(true), 2200)
     } else if (isDeleting && displayed.length > 0) {
       timeout = setTimeout(() => setDisplayed(current.slice(0, displayed.length - 1)), 40)
     } else if (isDeleting && displayed.length === 0) {
@@ -39,123 +42,154 @@ export default function Hero() {
   }
 
   return (
-    <section id="hero" className="min-h-screen flex flex-col justify-center px-6 relative overflow-hidden">
+    <section id="hero" style={{ minHeight: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px 24px 48px', position: 'relative', overflow: 'hidden' }}>
 
-      {/* Background grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(212,165,116,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(212,165,116,0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-        }}
-      />
+      {/* Subtle warm grain background */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none',
+        backgroundImage: `
+          radial-gradient(ellipse 70% 60% at 60% 40%, rgba(196,145,63,0.06) 0%, transparent 65%),
+          linear-gradient(rgba(196,145,63,0.02) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(196,145,63,0.02) 1px, transparent 1px)
+        `,
+        backgroundSize: 'auto, 64px 64px, 64px 64px',
+      }} />
 
-      {/* Radial glow */}
-      <div
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        style={{
-          width: '700px', height: '700px',
-          background: 'radial-gradient(circle, rgba(212,165,116,0.07) 0%, transparent 70%)',
-        }}
-      />
+      <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', position: 'relative' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '40px', alignItems: 'center' }}>
 
-      <div className="max-w-6xl mx-auto w-full relative">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-12">
-
-          {/* Left — text content */}
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-px bg-accent"></div>
-              <span className="text-accent text-sm font-mono">Hello, world</span>
+          {/* Text block */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+              <div style={{ width: '28px', height: '1px', background: ACCENT }}></div>
+              <span style={{ color: ACCENT, fontSize: '12px', fontFamily: 'var(--font-mono)' }}>Hello, world</span>
             </div>
 
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 leading-tight tracking-tight">
-              Sandeep<span className="text-accent">.</span>
-              <br />
-              Kumar<span className="text-accent">.</span>
+            <h1 style={{
+              fontSize: 'clamp(42px, 9vw, 80px)',
+              fontFamily: 'var(--font-serif)',
+              fontWeight: 600,
+              color: TEXT,
+              lineHeight: 1.05,
+              letterSpacing: '-0.03em',
+              margin: '0 0 16px',
+            }}>
+              Sandeep<span style={{ color: ACCENT }}>.</span><br />
+              Kumar<span style={{ color: ACCENT }}>.</span>
             </h1>
 
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-slate-400 text-lg font-mono">{'~$'}</span>
-              <span className="text-accent-light text-xl md:text-2xl font-mono">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', minHeight: '32px' }}>
+              <span style={{ color: FAINT, fontFamily: 'var(--font-mono)', fontSize: '15px' }}>~$</span>
+              <span style={{ color: '#DDB87A', fontFamily: 'var(--font-mono)', fontSize: 'clamp(14px, 3vw, 18px)' }}>
                 {displayed}
-                <span className="animate-pulse text-accent">|</span>
+                <span style={{ color: ACCENT, animation: 'blink 1s step-end infinite' }}>|</span>
               </span>
             </div>
 
-            <p className="text-slate-400 text-base md:text-lg max-w-xl mb-10 leading-relaxed">
+            <p style={{ color: MUTED, fontSize: 'clamp(14px, 2.5vw, 16px)', maxWidth: '520px', marginBottom: '36px', lineHeight: '1.75' }}>
               Self-driven developer with a strong foundation in Python backend and
               AI-integrated full-stack development. I build tools that solve real problems —
               from autonomous content agents to AI-powered fee collection platforms.
             </p>
 
-            <div className="flex flex-wrap items-center gap-4 mb-12">
-              <Button onClick={scrollToProjects}>View my work</Button>
-              <Button href="/resume.pdf" download variant="outline">resume.pdf</Button>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '36px' }}>
+              <button
+                onClick={scrollToProjects}
+                style={{
+                  background: ACCENT, border: 'none', borderRadius: '8px',
+                  padding: '12px 24px', color: '#fff', fontSize: '14px', fontWeight: 500,
+                  cursor: 'pointer', fontFamily: 'var(--font-sans)',
+                  transition: 'opacity 0.2s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.85' }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = '1' }}
+              >
+                View my work
+              </button>
+              <a
+                href="/resume.pdf"
+                download
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  border: `1px solid rgba(196,145,63,0.35)`, borderRadius: '8px',
+                  padding: '12px 22px', color: ACCENT, fontSize: '13px',
+                  fontFamily: 'var(--font-mono)', textDecoration: 'none',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.08)'; e.currentTarget.style.borderColor = ACCENT }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
+              >
+                resume.pdf
+              </a>
             </div>
 
-            <div className="flex items-center gap-6">
-              <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors duration-200">
-                <GitHubIcon />
-              </a>
-              <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" className="text-slate-500 hover:text-white transition-colors duration-200">
-                <LinkedInIcon />
-              </a>
-              <a href="mailto:sandeepkumarultra615615@gmail.com" className="text-slate-500 hover:text-white transition-colors duration-200">
-                <Mail size={20} />
-              </a>
-              <div className="w-px h-4 bg-slate-700"></div>
-              <span className="text-slate-600 text-xs font-mono">github.com/Qisanxi</span>
+            {/* Social links */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+              <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" style={{ color: FAINT, transition: 'color 0.2s', textDecoration: 'none' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+              ><GitHubIcon /></a>
+              <a href="https://www.linkedin.com/in/sandeep-qisanxi" target="_blank" rel="noreferrer" style={{ color: FAINT, transition: 'color 0.2s', textDecoration: 'none' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+              ><LinkedInIcon /></a>
+              <a href="mailto:sandeepkumarultra615615@gmail.com" style={{ color: FAINT, transition: 'color 0.2s', textDecoration: 'none' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+              ><Mail size={20} /></a>
+              <div style={{ width: '1px', height: '14px', background: FAINT + '50' }}></div>
+              <span style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>github.com/Qisanxi</span>
             </div>
           </div>
 
-          {/* Right — profile photo
-              Source: frontend/public/profile.png (3:4 portrait, cropped to circle)
-              The image hides itself automatically if the file doesn't exist yet. */}
-          <div className="hidden md:flex flex-col items-center gap-4 flex-shrink-0">
-            <div
-              className="relative"
-              style={{
-                background: 'linear-gradient(135deg, #D4A574 0%, #B8895A 50%, #3D2E1A 100%)',
-                borderRadius: '50%',
-                padding: '3px',
-                boxShadow: '0 0 40px rgba(212,165,116,0.3)',
-              }}
-            >
+          {/* Profile photo — hidden on mobile */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', flexShrink: 0 }}
+            className="hidden md:flex"
+          >
+            <div style={{
+              background: `linear-gradient(135deg, ${ACCENT} 0%, #A8762B 50%, #2E200A 100%)`,
+              borderRadius: '50%',
+              padding: '3px',
+              boxShadow: `0 0 40px rgba(196,145,63,0.25)`,
+            }}>
               <img
                 src="/profile.png"
                 alt="Sandeep Kumar"
-                onError={(e) => { e.currentTarget.closest('.relative').style.display = 'none' }}
+                onError={(e) => { e.currentTarget.closest('div').style.display = 'none' }}
                 style={{
-                  width: '200px', height: '200px',
+                  width: '196px', height: '196px',
                   borderRadius: '50%',
                   objectFit: 'cover',
                   display: 'block',
-                  background: '#2A2114',
+                  background: '#2A1E0D',
                 }}
               />
             </div>
 
-            {/* Availability badge under photo */}
-            <div
-              className="flex items-center gap-2 px-4 py-2 rounded-full"
-              style={{ background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }}
-            >
-              <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-              <span className="text-green-400 text-xs font-mono">Open to work</span>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '7px',
+              padding: '5px 14px', borderRadius: '20px',
+              background: 'rgba(74,222,128,0.06)',
+              border: '1px solid rgba(74,222,128,0.18)',
+            }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 6px rgba(74,222,128,0.6)' }}></span>
+              <span style={{ color: '#4ade80', fontSize: '11px', fontFamily: 'var(--font-mono)' }}>Open to work</span>
             </div>
           </div>
 
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-slate-600 text-xs font-mono">scroll</span>
-        <ArrowDown size={14} className="text-slate-600" />
+      {/* Scroll indicator */}
+      <div style={{ position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', animation: 'heroBounce 2s ease-in-out infinite' }}>
+        <span style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)' }}>scroll</span>
+        <ArrowDown size={13} color={FAINT} />
       </div>
+
+      <style>{`
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes heroBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+      `}</style>
     </section>
   )
 }

@@ -11,7 +11,7 @@ export default function Tag({ children, color, size = 'sm' }) {
 
   const style = color
     ? { color, background: color + '12', border: `1px solid ${color}30` }
-    : { color: '#64748b', background: 'rgba(255,255,255,0.04)' }
+    : { color: '#9A8E78', background: 'rgba(196,145,63,0.06)', border: '1px solid rgba(196,145,63,0.12)' }
 
   return (
     <span className={`text-xs font-mono rounded-lg ${padding}`} style={style}>

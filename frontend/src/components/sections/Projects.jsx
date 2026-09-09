@@ -169,8 +169,10 @@ function ProjectCard({ project }) {
   return (
     <div
       className="group flex flex-col rounded-xl border overflow-hidden transition-all duration-300
-                 hover:-translate-y-1 hover:border-accent-hover/40 hover:shadow-xl hover:shadow-accent/10"
-      style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}
+                 hover:-translate-y-1 hover:shadow-xl"
+      style={{ background: '#1C1710', borderColor: 'rgba(196,145,63,0.1)' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.1)' }}
     >
       <Gallery project={project} />
 
@@ -240,16 +242,18 @@ export default function Projects() {
   // Uniform grid — no more featured/non-featured split.
   // Signals "4 equally-strong projects" rather than "2 good + 2 filler".
   return (
-    <section id="projects" className="py-24 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section id="projects" style={{ padding: '72px 24px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
         <div ref={headingRef} className="reveal mb-12">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-accent"></div>
-            <span className="text-accent text-sm font-mono">02. projects</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ width: '28px', height: '1px', background: '#C4913F' }}></div>
+            <span style={{ color: '#C4913F', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>02. projects</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Things I have built</h2>
-          <p className="text-slate-400 max-w-xl">
+          <h2 style={{ color: '#EDE4CF', fontSize: 'clamp(26px, 5vw, 36px)', fontFamily: 'var(--font-serif)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 12px' }}>
+            Things I have built
+          </h2>
+          <p style={{ color: '#9A8E78', fontSize: '14px', maxWidth: '480px', lineHeight: '1.6', margin: 0 }}>
             AI-powered tools, autonomous agents, and real-world applications — built to solve actual problems.
           </p>
         </div>
