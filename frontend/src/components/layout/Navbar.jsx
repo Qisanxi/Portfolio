@@ -44,7 +44,7 @@ export default function Navbar() {
         <button onClick={() => scrollTo('hero')} className="flex items-center gap-1">
           <span className="text-slate-500 font-mono text-sm">{'<'}</span>
           <span className="text-white font-bold font-mono text-lg">SK</span>
-          <span className="text-indigo-400 font-mono text-sm">{'/>'}</span>
+          <span className="text-accent font-mono text-sm">{'/>'}</span>
         </button>
 
         {/* Availability badge - desktop */}
@@ -59,12 +59,12 @@ export default function Navbar() {
             <button
               key={link.href}
               onClick={() => scrollTo(link.href)}
-              style={{ color: activeSection === link.href ? '#818cf8' : '#94a3b8' }}
+              style={{ color: activeSection === link.href ? '#E8C9A0' : '#94a3b8' }}
               className="relative text-sm transition-colors hover:text-white"
             >
               {link.label}
               <span
-                className="absolute -bottom-1 left-1/2 w-1 h-1 rounded-full bg-indigo-400 transition-all duration-300"
+                className="absolute -bottom-1 left-1/2 w-1 h-1 rounded-full bg-accent transition-all duration-300"
                 style={{
                   opacity: activeSection === link.href ? 1 : 0,
                   transform: `translateX(-50%) scale(${activeSection === link.href ? 1 : 0})`,
@@ -77,7 +77,7 @@ export default function Navbar() {
           <a
             href="/resume.pdf"
             download
-            className="text-sm font-mono text-indigo-400 border border-indigo-400/40 hover:border-indigo-400 hover:bg-indigo-400/10 px-4 py-1.5 rounded transition-all duration-200"
+            className="text-sm font-mono text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 px-4 py-1.5 rounded transition-all duration-200"
           >
             resume.pdf
           </a>
@@ -112,7 +112,7 @@ export default function Navbar() {
               onClick={() => scrollTo(link.href)}
               className="text-slate-400 hover:text-white text-sm text-left font-mono transition-colors"
             >
-              <span className="text-indigo-400 mr-2">{'~/'}</span>
+              <span className="text-accent mr-2">{'~/'}</span>
               {link.label}
             </button>
           ))}
@@ -121,7 +121,7 @@ export default function Navbar() {
           <a
             href="/resume.pdf"
             download
-            className="text-sm font-mono text-indigo-400 border border-indigo-400/40 px-4 py-2 rounded text-center"
+            className="text-sm font-mono text-accent border border-accent/40 px-4 py-2 rounded text-center"
           >
             resume.pdf
           </a>

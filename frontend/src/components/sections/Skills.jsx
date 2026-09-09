@@ -5,7 +5,7 @@ const skillGroups = [
   {
     category: 'Web Development',
     number: '01',
-    color: '#6366f1',
+    color: '#D4A574',
     skills: ['React', 'FastAPI', 'Django', 'Python', 'REST APIs', 'Java'],
   },
   {
@@ -24,7 +24,7 @@ const skillGroups = [
     category: 'Cloud & Infra',
     number: '04',
     color: '#10b981',
-    skills: ['Google Cloud Run', 'AWS', 'Docker', 'Linux'],
+    skills: ['AWS App Runner', 'ECR', 'Docker', 'Linux'],
   },
   {
     category: 'Tools',
@@ -47,7 +47,7 @@ const cardStyle = {
 
 function SkillCard({ group }) {
   return (
-    <div className="rounded-xl p-6 hover:border-indigo-500/30 transition-colors duration-300" style={cardStyle}>
+    <div className="rounded-xl p-6 hover:border-accent-hover/30 transition-colors duration-300" style={cardStyle}>
       <div className="flex items-center gap-3 mb-5">
         <span className="font-mono text-xs" style={{ color: group.color }}>{group.number}</span>
         <div className="w-px h-4" style={{ background: group.color + '40' }}></div>
@@ -77,8 +77,8 @@ export default function Skills() {
 
         <div ref={headingRef} className="reveal mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-indigo-400"></div>
-            <span className="text-indigo-400 text-sm font-mono">03. skills</span>
+            <div className="w-8 h-px bg-accent"></div>
+            <span className="text-accent text-sm font-mono">03. skills</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">What I work with</h2>
           <p className="text-slate-400 max-w-xl">
@@ -95,15 +95,15 @@ export default function Skills() {
         <div
           ref={footerRef}
           className="reveal mt-12 p-6 rounded-xl"
-          style={{ background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.15)' }}
+          style={{ background: 'rgba(212,165,116,0.05)', border: '1px solid rgba(212,165,116,0.15)' }}
         >
           <div className="flex items-center gap-3 mb-2">
-            <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
-            <span className="text-indigo-400 text-sm font-mono">currently exploring</span>
+            <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+            <span className="text-accent text-sm font-mono">currently exploring</span>
           </div>
           <p className="text-slate-400 text-sm leading-relaxed">
             Deepening expertise in AI agents, RAG pipelines, and LLM tooling with Google ADK and Claude Code.
-            Expanding cloud skills on Google Cloud Run for scalable zero-cost deployments.
+            Expanding cloud skills on AWS App Runner for scalable low-cost deployments.
           </p>
         </div>
 

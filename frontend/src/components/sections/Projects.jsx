@@ -12,7 +12,7 @@ const projects = [
     github: 'https://github.com/Qisanxi/DueAlert',
     demo: 'https://duealert-bbb61.web.app',
     badge: 'Gemini XPrize Hackathon',
-    badgeColor: '#6366f1',
+    badgeColor: '#D4A574',
     // Drop screenshot at frontend/public/images/duealert.png
     image: '/images/duealert.png',
     featured: true,
@@ -56,7 +56,7 @@ function ProjectImage({ src, alt }) {
   return (
     <div
       className="w-full overflow-hidden rounded-t-xl"
-      style={{ height: '180px', background: 'rgba(99,102,241,0.06)' }}
+      style={{ height: '180px', background: 'rgba(212,165,116,0.06)' }}
     >
       <img
         src={src}
@@ -72,7 +72,7 @@ function ProjectCard({ project, featured }) {
   return (
     <div
       className="group flex flex-col rounded-xl border overflow-hidden transition-all duration-300
-                 hover:-translate-y-1 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-500/10"
+                 hover:-translate-y-1 hover:border-accent-hover/40 hover:shadow-xl hover:shadow-accent/10"
       style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.08)' }}
     >
       {/* Project screenshot — hidden gracefully if file not yet added */}
@@ -104,7 +104,7 @@ function ProjectCard({ project, featured }) {
                 href={project.demo}
                 target="_blank"
                 rel="noreferrer"
-                className="text-slate-500 hover:text-indigo-400 transition-colors"
+                className="text-slate-500 hover:text-accent transition-colors"
                 title="Live demo"
               >
                 <ExternalLink size={16} />
@@ -125,8 +125,8 @@ function ProjectCard({ project, featured }) {
               href={project.demo}
               target="_blank"
               rel="noreferrer"
-              className="ml-auto flex items-center gap-1.5 text-xs font-mono text-indigo-400
-                         border border-indigo-400/30 hover:border-indigo-400 hover:bg-indigo-400/10
+              className="ml-auto flex items-center gap-1.5 text-xs font-mono text-accent
+                         border border-accent/30 hover:border-accent hover:bg-accent/10
                          px-3 py-1 rounded transition-all duration-200"
             >
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
@@ -153,8 +153,8 @@ export default function Projects() {
 
         <div ref={headingRef} className="reveal mb-12">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-px bg-indigo-400"></div>
-            <span className="text-indigo-400 text-sm font-mono">02. projects</span>
+            <div className="w-8 h-px bg-accent"></div>
+            <span className="text-accent text-sm font-mono">02. projects</span>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Things I have built</h2>
           <p className="text-slate-400 max-w-xl">

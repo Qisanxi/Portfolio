@@ -10,11 +10,11 @@ export default function Footer() {
         <div className="flex items-center gap-1">
           <span className="text-slate-500 font-mono text-sm">{'<'}</span>
           <span className="text-white font-bold font-mono text-sm">SK</span>
-          <span className="text-indigo-400 font-mono text-sm">{'/>'}</span>
+          <span className="text-accent font-mono text-sm">{'/>'}</span>
         </div>
 
         <p className="text-slate-600 text-xs font-mono text-center">
-          Built with React · FastAPI · PostgreSQL · Google GenAI SDK · Cloud Run
+          Built with React · FastAPI · PostgreSQL · Google GenAI SDK · AWS App Runner
         </p>
 
         <div className="flex items-center gap-5">

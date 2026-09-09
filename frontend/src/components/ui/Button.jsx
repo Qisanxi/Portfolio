@@ -20,8 +20,8 @@ export default function Button({
   const base = 'inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
 
   const variants = {
-    primary: 'bg-indigo-600 hover:bg-indigo-500 text-white hover:shadow-lg hover:shadow-indigo-500/20',
-    outline: 'text-indigo-400 border border-indigo-400/40 hover:border-indigo-400 hover:bg-indigo-400/10 font-mono text-sm',
+    primary: 'bg-accent hover:bg-accent-hover text-white hover:shadow-lg hover:shadow-accent/20',
+    outline: 'text-accent border border-accent/40 hover:border-accent hover:bg-accent/10 font-mono text-sm',
     ghost:   'text-slate-400 hover:text-white',
   }
 
