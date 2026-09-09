@@ -18,7 +18,7 @@ Personal portfolio website with an AI-powered chatbot built to showcase projects
 | AI | Gemini 2.5 Flash API |
 | Rate Limiting | Slowapi |
 | DevOps | Docker, docker-compose |
-| Deploy | Vercel (frontend), Railway (backend), Supabase (DB) |
+| Deploy | Vercel (frontend), Google Cloud Run (backend), Supabase (DB) |
 
 ---
 
@@ -45,7 +45,7 @@ graph TB
         CW["ChatWidget\nOnboarding → Chat"]:::ui
     end
 
-    subgraph Railway["🚂 Railway  —  FastAPI Backend"]
+    subgraph CloudRun["☁️ Google Cloud Run  —  FastAPI Backend"]
         direction TB
         CORS["CORS Middleware\nFRONTEND_URL whitelist"]:::middleware
         RL["Slowapi Rate Limiter"]:::middleware
@@ -91,7 +91,7 @@ graph TB
 sequenceDiagram
     actor V as Visitor
     participant FE as React Frontend<br/>(Vercel)
-    participant API as FastAPI Backend<br/>(Railway)
+    participant API as FastAPI Backend<br/>(Cloud Run)
     participant AI as Gemini 2.5 Flash<br/>(Google AI)
     participant DB as PostgreSQL<br/>(Supabase)
 
@@ -302,8 +302,30 @@ docker-compose up --build
 | Service | Platform | Notes |
 |---|---|---|
 | Frontend | Vercel | Set `VITE_API_URL` in Vercel dashboard |
-| Backend | Railway | Set all backend env vars in Railway dashboard |
+| Backend | Google Cloud Run | Deploy container with `gcloud run deploy`, set env vars in GCP Console |
 | Database | Supabase | Copy the connection string into `DATABASE_URL` |
+
+### Deploy backend to Cloud Run
+
+```bash
+# One-time setup
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com
+
+# Build and deploy (run from repo root)
+gcloud builds submit ./backend --tag gcr.io/YOUR_PROJECT_ID/portfolio-backend
+
+gcloud run deploy portfolio-backend \
+  --image gcr.io/YOUR_PROJECT_ID/portfolio-backend \
+  --platform managed \
+  --region us-central1 \
+  --allow-unauthenticated \
+  --set-env-vars DATABASE_URL="...",GEMINI_API_KEY="...",FRONTEND_URL="https://sandeep-kumar.vercel.app",DEBUG="False"
+```
+
+Cloud Run gives you a URL like `https://portfolio-backend-xxxx-uc.a.run.app`.
+Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
 
 ---
 
