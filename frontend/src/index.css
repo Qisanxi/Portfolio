@@ -25,12 +25,36 @@
   --color-text-faint:    #5C5446;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #120E08;
   color: #EDE4CF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Prevent horizontal overflow on narrow screens */
+  overflow-x: hidden;
+}
+
+/* Focus ring — visible for keyboard navigation, invisible on mouse */
+:focus-visible {
+  outline: 2px solid rgba(196,145,63,0.6);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Smooth image rendering */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Section separator — subtle amber glow line */
+section + section {
+  border-top: 1px solid rgba(196,145,63,0.06);
 }
 
 /* Serif display headings */

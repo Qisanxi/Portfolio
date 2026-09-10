@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sandeep-kumar.vercel.app/sitemap.xml

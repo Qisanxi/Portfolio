@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Github } from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon } from '../../lib/icons'
 import Badge from '../ui/Badge'
-import Tag from '../ui/Tag'
 
 const ACCENT = '#C4913F'
+const TEXT = '#EDE4CF'
+const MUTED = '#9A8E78'
+const FAINT = '#5C5446'
+const CARD_BG = '#1C1710'
+const CARD_BG_RAISED = '#221A0F'
 
 const projects = [
   {
@@ -18,6 +22,8 @@ const projects = [
     badgeColor: '#C4913F',
     folder: 'DueAlert',
     images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
+    hasPhone: true,   // show phone overlay beside the laptop
+    phoneImage: 'duealert4.png',
   },
   {
     title: 'AutoPost',
@@ -29,10 +35,11 @@ const projects = [
     badgeColor: '#4285f4',
     folder: 'AutoPost',
     images: ['Autopost1.png','Autopost2.png','Autopost3.png','Autopost4.png','Autopost5.png','Autopost6.png'],
+    hasPhone: false,
   },
   {
     title: 'WhatsApp Priority Agent',
-    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm. Recognised by AMD Developer Program.',
+    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm.',
     tags: ['FastAPI', 'React', 'AMD ROCm', 'Qwen3', 'PostgreSQL'],
     github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
     demo: null,
@@ -40,10 +47,11 @@ const projects = [
     badgeColor: '#f97316',
     folder: 'whatsapp_priority_agent',
     images: ['agent1.png','agent2.png','agent3.png','agent4.png','agent5.png'],
+    hasPhone: false,
   },
   {
     title: 'FinSathi',
-    description: "Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user's profile. References SEBI, AMFI, and IRDAI regulations.",
+    description: "Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user's profile.",
     tags: ['Python', 'Streamlit', 'Google Gemini', 'Google GenAI SDK'],
     github: 'https://github.com/Qisanxi/finsathi.ai',
     demo: null,
@@ -51,90 +59,153 @@ const projects = [
     badgeColor: null,
     folder: 'finsathi',
     images: ['finsathi1.png','finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png'],
+    hasPhone: false,
   },
 ]
 
-// ─── DeviceGallery ────────────────────────────────────────────────────────────
-// Shows device mockup screenshots with objectFit: contain so the full
-// laptop+phone composite is never cropped. Auto-cycles every 2.5 s,
-// pauses on hover, progress bars at bottom are clickable.
+// ─── MacOS Laptop Frame ───────────────────────────────────────────────────────
+function LaptopFrame({ src, alt, compact }) {
+  return (
+    <div style={{ width: '100%', position: 'relative', userSelect: 'none' }}>
+      {/* Screen body */}
+      <div style={{
+        background: '#1E1D1A',
+        borderRadius: compact ? '8px 8px 0 0' : '10px 10px 0 0',
+        padding: compact ? '18px 5px 5px' : '22px 7px 7px',
+        border: '1.5px solid #38342C',
+        borderBottom: 'none',
+        position: 'relative',
+      }}>
+        {/* Traffic lights */}
+        <div style={{ position: 'absolute', top: compact ? 6 : 8, left: compact ? 8 : 10, display: 'flex', gap: 4 }}>
+          <div style={{ width: compact ? 6 : 7, height: compact ? 6 : 7, borderRadius: '50%', background: '#FF5F57', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.3)' }} />
+          <div style={{ width: compact ? 6 : 7, height: compact ? 6 : 7, borderRadius: '50%', background: '#FFBD2E', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.3)' }} />
+          <div style={{ width: compact ? 6 : 7, height: compact ? 6 : 7, borderRadius: '50%', background: '#28C840', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.3)' }} />
+        </div>
+        {/* Browser URL bar hint */}
+        <div style={{
+          background: '#0D0C0A',
+          borderRadius: compact ? 3 : 4,
+          overflow: 'hidden',
+          aspectRatio: '16/9.5',
+          border: '1px solid #2A2720',
+        }}>
+          <img
+            src={src}
+            alt={alt}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }}
+          />
+        </div>
+      </div>
+      {/* Hinge + base */}
+      <div style={{
+        height: compact ? 7 : 9,
+        background: 'linear-gradient(180deg, #2A2720 0%, #1A1712 100%)',
+        borderRadius: compact ? '0 0 5px 5px' : '0 0 7px 7px',
+        border: '1.5px solid #38342C',
+        borderTop: '1px solid #1A1712',
+      }} />
+    </div>
+  )
+}
 
-function DeviceGallery({ folder, images }) {
-  const urls = images.map((f) => `/project_image/${folder}/${f}`)
-  const [idx, setIdx]         = useState(0)
+// ─── Phone Frame ─────────────────────────────────────────────────────────────
+function PhoneFrame({ src }) {
+  return (
+    <div style={{
+      background: '#1E1D1A',
+      borderRadius: 18,
+      padding: '14px 5px 6px',
+      border: '1.5px solid #38342C',
+      width: 78,
+      flexShrink: 0,
+      boxShadow: '0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4)',
+      position: 'relative',
+    }}>
+      {/* Notch */}
+      <div style={{
+        position: 'absolute', top: 7, left: '50%', transform: 'translateX(-50%)',
+        width: 22, height: 4, borderRadius: 2, background: '#0D0C0A',
+      }} />
+      {/* Screen */}
+      <div style={{ background: '#0D0C0A', borderRadius: 10, overflow: 'hidden', aspectRatio: '9/18' }}>
+        <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }} />
+      </div>
+      {/* Home bar */}
+      <div style={{ width: 28, height: 3, background: '#38342C', borderRadius: 2, margin: '6px auto 0' }} />
+    </div>
+  )
+}
+
+// ─── Auto-cycling image gallery inside the frame ──────────────────────────────
+function DeviceDisplay({ project, compact }) {
+  const urls = project.images.map((f) => `/project_image/${project.folder}/${f}`)
+  const [idx, setIdx]       = useState(0)
   const [visible, setVisible] = useState(true)
   const [paused, setPaused]   = useState(false)
 
-  // Preload next image before the swap
   useEffect(() => {
-    const img = new Image()
-    img.src = urls[(idx + 1) % urls.length]
+    if (urls[(idx + 1) % urls.length]) {
+      const img = new window.Image()
+      img.src = urls[(idx + 1) % urls.length]
+    }
   }, [idx]) // eslint-disable-line
 
-  // Auto-advance timer
   useEffect(() => {
     if (paused || urls.length <= 1) return
-    const id = setInterval(() => goTo(), 2500)
+    const id = setInterval(() => {
+      setVisible(false)
+      setTimeout(() => { setIdx((i) => (i + 1) % urls.length); setVisible(true) }, 280)
+    }, 2800)
     return () => clearInterval(id)
   }, [paused, idx, urls.length]) // eslint-disable-line
 
-  function goTo(next) {
+  const goTo = (i) => {
     setVisible(false)
-    setTimeout(() => {
-      setIdx(next !== undefined ? next : (i) => (i + 1) % urls.length)
-      setVisible(true)
-    }, 300)
+    setTimeout(() => { setIdx(i); setVisible(true) }, 280)
   }
+
+  const phoneUrl = project.hasPhone
+    ? `/project_image/${project.folder}/${project.phoneImage}`
+    : null
 
   return (
     <div
       style={{
+        display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+        gap: 0, padding: compact ? '20px 12px 12px' : '28px 20px 16px',
+        background: 'radial-gradient(ellipse at 60% 40%, #201A0F 0%, #0F0D09 100%)',
         position: 'relative',
-        // Warm dark background so the device frame blends naturally
-        background: 'radial-gradient(ellipse at center, #1f1a12 0%, #0F1410 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px 16px',
-        minHeight: 240,
+        minHeight: compact ? 180 : 240,
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Device mockup image — contain so laptop+phone composite is never cropped */}
-      <img
-        src={urls[idx]}
-        alt=""
+      {/* Laptop — takes most of the width; shrinks to leave room for phone */}
+      <div
         style={{
-          width: '100%',
-          maxHeight: 260,
-          objectFit: 'contain',
-          display: 'block',
+          flex: 1,
+          maxWidth: project.hasPhone ? '78%' : '100%',
           opacity: visible ? 1 : 0,
-          transition: 'opacity 0.32s ease',
-          // Subtle drop shadow so the device lifts off the background
-          filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.55))',
+          transition: 'opacity 0.28s ease',
+          filter: 'drop-shadow(0 10px 28px rgba(0,0,0,0.6))',
         }}
-      />
+      >
+        <LaptopFrame src={urls[idx]} alt={project.title} compact={compact} />
+      </div>
 
-      {/* Image counter — shows on hover */}
-      {paused && urls.length > 1 && (
-        <div style={{
-          position: 'absolute', top: 10, right: 10,
-          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
-          borderRadius: 5, padding: '2px 9px',
-          fontSize: 10, fontFamily: 'var(--font-mono)',
-          color: 'rgba(255,255,255,0.65)',
-        }}>
-          {idx + 1} / {urls.length}
+      {/* Phone overlay — only for projects that have one */}
+      {phoneUrl && (
+        <div style={{ marginLeft: -16, marginBottom: 8 }}>
+          <PhoneFrame src={phoneUrl} />
         </div>
       )}
 
-      {/* Progress bars */}
+      {/* Progress dots — bottom center */}
       {urls.length > 1 && (
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0,
-          display: 'flex', gap: 2, padding: '0 10px 10px',
+          position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+          display: 'flex', gap: 5,
         }}>
           {urls.map((_, i) => (
             <button
@@ -142,11 +213,11 @@ function DeviceGallery({ folder, images }) {
               onClick={(e) => { e.stopPropagation(); goTo(i) }}
               aria-label={`Screenshot ${i + 1}`}
               style={{
-                flex: 1, height: 3, border: 'none', padding: 0,
-                borderRadius: 2, cursor: 'pointer',
-                background: i === idx ? ACCENT : 'rgba(255,255,255,0.18)',
-                transform: i === idx ? 'scaleY(1.6)' : 'scaleY(1)',
-                transition: 'background 0.3s, transform 0.2s',
+                width: i === idx ? 16 : 5,
+                height: 5, padding: 0, border: 'none', borderRadius: 3,
+                cursor: 'pointer',
+                background: i === idx ? ACCENT : 'rgba(196,145,63,0.25)',
+                transition: 'width 0.25s, background 0.25s',
               }}
             />
           ))}
@@ -156,118 +227,210 @@ function DeviceGallery({ folder, images }) {
   )
 }
 
-// ─── ProjectCard — same horizontal layout for all 4 ──────────────────────────
-
-function ProjectCard({ project }) {
+// ─── Featured (horizontal) card — used for first 2 projects ──────────────────
+function FeaturedCard({ project }) {
   return (
     <div
+      className="project-card"
       style={{
         display: 'grid',
-        gridTemplateColumns: '46% 1fr',
-        borderRadius: 14, overflow: 'hidden',
-        border: '1px solid rgba(196,145,63,0.13)',
-        background: '#1C1710',
-        transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+        gridTemplateColumns: '44% 1fr',
+        borderRadius: 16,
+        overflow: 'hidden',
+        border: '1px solid rgba(196,145,63,0.12)',
+        background: CARD_BG,
+        transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.4)'
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.38)'
         e.currentTarget.style.transform = 'translateY(-3px)'
-        e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
+        e.currentTarget.style.boxShadow = '0 20px 48px rgba(0,0,0,0.45)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.13)'
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
         e.currentTarget.style.transform = 'translateY(0)'
         e.currentTarget.style.boxShadow = 'none'
       }}
     >
-      {/* Left — device gallery */}
-      <div style={{
-        borderRight: '1px solid rgba(196,145,63,0.08)',
-      }}>
-        <DeviceGallery folder={project.folder} images={project.images} />
+      {/* Left — device display */}
+      <div style={{ borderRight: '1px solid rgba(196,145,63,0.08)' }}>
+        <DeviceDisplay project={project} compact={false} />
       </div>
 
       {/* Right — content */}
-      <div style={{
-        padding: '26px 24px 22px',
-        display: 'flex', flexDirection: 'column',
-      }}>
+      <div style={{ padding: '28px 26px 22px', display: 'flex', flexDirection: 'column' }}>
         {project.badge && (
-          <div style={{ marginBottom: 10 }}>
+          <div style={{ marginBottom: 12 }}>
             <Badge color={project.badgeColor}>{project.badge}</Badge>
           </div>
         )}
 
-        <div style={{
-          display: 'flex', alignItems: 'flex-start',
-          justifyContent: 'space-between', gap: 10, marginBottom: 10,
-        }}>
+        {/* Title + links */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 14 }}>
           <h3 style={{
-            color: '#EDE4CF', fontSize: 17,
-            fontFamily: 'var(--font-serif)', fontWeight: 600,
-            margin: 0, lineHeight: 1.3,
+            color: TEXT,
+            fontSize: 'clamp(18px, 2.5vw, 22px)',
+            fontFamily: 'var(--font-serif)',
+            fontWeight: 600,
+            margin: 0,
+            lineHeight: 1.25,
+            letterSpacing: '-0.01em',
           }}>
             {project.title}
           </h3>
-          <div style={{ display: 'flex', gap: 12, flexShrink: 0, paddingTop: 2 }}>
-            <a
-              href={project.github} target="_blank" rel="noreferrer"
-              style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+          <div style={{ display: 'flex', gap: 12, flexShrink: 0, paddingTop: 3 }}>
+            <a href={project.github} target="_blank" rel="noreferrer"
+              style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
               title="Source code"
-            >
-              <GitHubIcon size={15} />
-            </a>
+            ><GitHubIcon size={16} /></a>
             {project.demo && (
-              <a
-                href={project.demo} target="_blank" rel="noreferrer"
-                style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+              <a href={project.demo} target="_blank" rel="noreferrer"
+                style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
                 title="Live demo"
-              >
-                <ExternalLink size={15} />
-              </a>
+              ><ExternalLink size={16} /></a>
             )}
           </div>
         </div>
 
-        <p style={{
-          color: '#9A8E78', fontSize: 13, lineHeight: '1.72',
-          margin: '0 0 18px', flex: 1,
-        }}>
+        <p style={{ color: MUTED, fontSize: 13, lineHeight: '1.75', margin: '0 0 20px', flex: 1 }}>
           {project.description}
         </p>
 
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-          {project.tags.map((t) => <Tag key={t} size="xs">{t}</Tag>)}
+        {/* Tags */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: project.demo ? 14 : 0 }}>
+          {project.tags.map((t) => (
+            <span key={t} style={{
+              fontSize: 11, fontFamily: 'var(--font-mono)',
+              color: MUTED,
+              background: 'rgba(196,145,63,0.06)',
+              border: '1px solid rgba(196,145,63,0.14)',
+              borderRadius: 6,
+              padding: '3px 9px',
+            }}>{t}</span>
+          ))}
+        </div>
 
+        {/* Live button */}
+        {project.demo && (
+          <div>
+            <a
+              href={project.demo} target="_blank" rel="noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontSize: 11, fontFamily: 'var(--font-mono)',
+                color: ACCENT,
+                border: '1px solid rgba(196,145,63,0.28)',
+                borderRadius: 7, padding: '5px 13px',
+                textDecoration: 'none',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.09)'; e.currentTarget.style.borderColor = ACCENT }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.28)' }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', animation: 'livePulse 2s infinite' }} />
+              Live
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+// ─── Compact card — used for the bottom grid (last 2 projects) ────────────────
+function CompactCard({ project }) {
+  return (
+    <div
+      style={{
+        borderRadius: 14,
+        overflow: 'hidden',
+        border: '1px solid rgba(196,145,63,0.12)',
+        background: CARD_BG,
+        display: 'flex', flexDirection: 'column',
+        transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.38)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
+    >
+      {/* Top — device display */}
+      <DeviceDisplay project={project} compact={true} />
+
+      {/* Bottom — content */}
+      <div style={{ padding: '18px 20px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+        {project.badge && (
+          <div style={{ marginBottom: 8 }}>
+            <Badge color={project.badgeColor}>{project.badge}</Badge>
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
+          <h3 style={{
+            color: TEXT,
+            fontSize: 15,
+            fontFamily: 'var(--font-serif)',
+            fontWeight: 600,
+            margin: 0,
+            lineHeight: 1.3,
+            letterSpacing: '-0.01em',
+          }}>
+            {project.title}
+          </h3>
+          <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 2 }}>
+            <a href={project.github} target="_blank" rel="noreferrer"
+              style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+            ><GitHubIcon size={14} /></a>
+            {project.demo && (
+              <a href={project.demo} target="_blank" rel="noreferrer"
+                style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+              ><ExternalLink size={14} /></a>
+            )}
+          </div>
+        </div>
+
+        <p style={{ color: MUTED, fontSize: 12, lineHeight: '1.7', margin: '0 0 14px', flex: 1 }}>
+          {project.description}
+        </p>
+
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
+          {project.tags.map((t) => (
+            <span key={t} style={{
+              fontSize: 10, fontFamily: 'var(--font-mono)',
+              color: MUTED,
+              background: 'rgba(196,145,63,0.06)',
+              border: '1px solid rgba(196,145,63,0.14)',
+              borderRadius: 5, padding: '2px 7px',
+            }}>{t}</span>
+          ))}
           {project.demo && (
             <a
               href={project.demo} target="_blank" rel="noreferrer"
               style={{
                 marginLeft: 'auto',
                 display: 'inline-flex', alignItems: 'center', gap: 5,
-                fontSize: 11, fontFamily: 'var(--font-mono)', color: ACCENT,
-                border: '1px solid rgba(196,145,63,0.3)', borderRadius: 6,
-                padding: '4px 10px', textDecoration: 'none',
-                transition: 'all 0.2s',
+                fontSize: 10, fontFamily: 'var(--font-mono)', color: ACCENT,
+                border: '1px solid rgba(196,145,63,0.28)', borderRadius: 5,
+                padding: '3px 9px', textDecoration: 'none', transition: 'all 0.2s',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(196,145,63,0.09)'
-                e.currentTarget.style.borderColor = ACCENT
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.borderColor = 'rgba(196,145,63,0.3)'
-              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.09)' }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
             >
-              <span style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: '#4ade80',
-                animation: 'livePulse 2s infinite',
-              }} />
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', animation: 'livePulse 2s infinite' }} />
               Live
             </a>
           )}
@@ -278,10 +441,13 @@ function ProjectCard({ project }) {
 }
 
 // ─── Section ─────────────────────────────────────────────────────────────────
-
 export default function Projects() {
   const headingRef = useScrollAnimation()
-  const cardsRef   = useScrollAnimation()
+  const featuredRef = useScrollAnimation()
+  const gridRef = useScrollAnimation()
+
+  const featured = projects.slice(0, 2)
+  const grid     = projects.slice(2)
 
   return (
     <section id="projects" style={{ padding: '72px 24px' }}>
@@ -291,44 +457,56 @@ export default function Projects() {
         <div ref={headingRef} className="reveal" style={{ marginBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <div style={{ width: 28, height: 1, background: ACCENT }} />
-            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
-              02. projects
-            </span>
+            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>02. projects</span>
           </div>
           <h2 style={{
-            color: '#EDE4CF', margin: '0 0 10px',
+            color: TEXT, margin: '0 0 10px',
             fontSize: 'clamp(26px, 5vw, 36px)',
             fontFamily: 'var(--font-serif)', fontWeight: 600,
             letterSpacing: '-0.02em', lineHeight: 1.2,
           }}>
             Things I have built
           </h2>
-          <p style={{ color: '#9A8E78', fontSize: 14, lineHeight: '1.6', margin: 0 }}>
+          <p style={{ color: MUTED, fontSize: 14, lineHeight: '1.6', margin: 0 }}>
             AI-powered tools, autonomous agents, and real-world applications.
-            Hover any card to pause — click the bars to jump between screenshots.
           </p>
         </div>
 
-        {/* All 4 cards — same style, stacked */}
+        {/* Featured — full-width horizontal cards */}
         <div
-          ref={cardsRef}
+          ref={featuredRef}
           className="reveal-children"
-          style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}
         >
-          {projects.map((p) => (
-            <ProjectCard key={p.title} project={p} />
-          ))}
+          {featured.map((p) => <FeaturedCard key={p.title} project={p} />)}
+        </div>
+
+        {/* Grid — compact 2-col cards */}
+        <div
+          ref={gridRef}
+          className="reveal-children"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: 20,
+          }}
+        >
+          {grid.map((p) => <CompactCard key={p.title} project={p} />)}
         </div>
 
       </div>
 
       <style>{`
-        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-        /* Stack cards on mobile */
+        /* Stack featured cards on mobile */
         @media (max-width: 640px) {
-          #projects [style*="gridTemplateColumns"] {
+          .project-card {
             grid-template-columns: 1fr !important;
+          }
+          .project-card > div:first-child {
+            border-right: none !important;
+            border-bottom: 1px solid rgba(196,145,63,0.08);
           }
         }
       `}</style>
