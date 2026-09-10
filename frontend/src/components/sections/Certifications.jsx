@@ -1,5 +1,5 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
-import { Award, ExternalLink } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 const ACCENT = '#C4913F'
 const TEXT = '#EDE4CF'
@@ -93,25 +93,43 @@ function CertCard({ cert }) {
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+        <div style={{ marginBottom: '4px' }}>
           <h3 style={{ color: TEXT, fontSize: '13px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.4', margin: 0 }}>
             {cert.name}
           </h3>
-          {cert.link && (
-            <a href={cert.link} target="_blank" rel="noreferrer" style={{ color: FAINT, flexShrink: 0, marginTop: '1px', transition: 'color 0.15s', textDecoration: 'none' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
-            >
-              <ExternalLink size={12} />
-            </a>
-          )}
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           <span style={{ color: cert.color, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{cert.issuer}</span>
           <span style={{ color: FAINT, fontSize: '11px' }}>·</span>
           <span style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{cert.date}</span>
         </div>
-        <p style={{ color: MUTED, fontSize: '12px', lineHeight: '1.6', margin: 0 }}>{cert.desc}</p>
+        <p style={{ color: MUTED, fontSize: '12px', lineHeight: '1.6', margin: '0 0 10px' }}>{cert.desc}</p>
+
+        {/* Verify button — replaces the small ExternalLink icon.
+            More visible to recruiters, clearer that it leads to the official badge. */}
+        {cert.link && (
+          <a
+            href={cert.link}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '5px',
+              fontSize: '11px', fontFamily: 'var(--font-mono)',
+              color: ACCENT,
+              background: 'rgba(196,145,63,0.06)',
+              border: '1px solid rgba(196,145,63,0.25)',
+              borderRadius: '6px',
+              padding: '4px 10px',
+              textDecoration: 'none',
+              transition: 'all 0.18s',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.12)'; e.currentTarget.style.borderColor = ACCENT }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.06)'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.25)' }}
+          >
+            Verify
+            <ArrowUpRight size={11} />
+          </a>
+        )}
       </div>
     </div>
   )
