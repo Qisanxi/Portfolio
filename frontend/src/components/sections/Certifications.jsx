@@ -41,7 +41,7 @@ const certs = [
     date: '2026',
     color: '#C4913F',
     emoji: '🐧',
-    desc: 'Certified completion of AI prompt engineering integration into backend workflows.',
+    desc: 'Mastered the OpenAPI Specification (OAS) — the industry standard for defining, documenting, and designing RESTful APIs.',
     link: 'https://www.credly.com/badges/4b93492c-332c-403e-898b-761a4290260c/linked_in_profile',
   },
   {
