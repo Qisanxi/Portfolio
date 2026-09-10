@@ -22,8 +22,8 @@ const projects = [
     folder: 'DueAlert',
     images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
     hasPhone: true,
-    // duealert7.png — pop-up window showing AI-generated WhatsApp message to a parent (Suman Sen) about pending fees
-    phoneImage: 'duealert7.png',
+    // duealert_mobile.png — generated mobile mockup of WhatsApp-style fee reminder chat
+    phoneImage: 'duealert_mobile.png',
   },
   {
     title: 'AutoPost',
@@ -36,8 +36,8 @@ const projects = [
     folder: 'AutoPost',
     images: ['Autopost1.png','Autopost2.png','Autopost4.png','Autopost5.png','Autopost6.png'],
     hasPhone: true,
-    // Autopost3.png — live demo page showing the agent running
-    phoneImage: 'Autopost3.png',
+    // autopost_mobile.png — generated mobile mockup of agent dashboard
+    phoneImage: 'autopost_mobile.png',
   },
   {
     title: 'WhatsApp Priority Agent',
@@ -50,8 +50,8 @@ const projects = [
     folder: 'whatsapp_priority_agent',
     images: ['agent1.png','agent2.png','agent4.png','agent5.png'],
     hasPhone: true,
-    // agent3.png — dashboard with WhatsApp chat conversation between Demo Customer and AI Agent
-    phoneImage: 'agent3.png',
+    // whatsapp_mobile.png — generated mobile mockup of priority chat conversation
+    phoneImage: 'whatsapp_mobile.png',
   },
   {
     title: 'FinSathi',
@@ -64,8 +64,8 @@ const projects = [
     folder: 'finsathi',
     images: ['finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png','finsathi6.png'],
     hasPhone: true,
-    // finsathi1.png — chat interface where FinSathi answers a user's question about SIPs
-    phoneImage: 'finsathi1.png',
+    // finsathi_mobile.png — generated mobile mockup of FinSathi chat explaining SIPs
+    phoneImage: 'finsathi_mobile.png',
   },
 ]
 
