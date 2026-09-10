@@ -18,7 +18,6 @@ const projects = [
     badgeColor: '#C4913F',
     folder: 'DueAlert',
     images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
-    featured: true,
   },
   {
     title: 'AutoPost',
@@ -30,7 +29,6 @@ const projects = [
     badgeColor: '#4285f4',
     folder: 'AutoPost',
     images: ['Autopost1.png','Autopost2.png','Autopost3.png','Autopost4.png','Autopost5.png','Autopost6.png'],
-    featured: true,
   },
   {
     title: 'WhatsApp Priority Agent',
@@ -42,7 +40,6 @@ const projects = [
     badgeColor: '#f97316',
     folder: 'whatsapp_priority_agent',
     images: ['agent1.png','agent2.png','agent3.png','agent4.png','agent5.png'],
-    featured: false,
   },
   {
     title: 'FinSathi',
@@ -54,28 +51,27 @@ const projects = [
     badgeColor: null,
     folder: 'finsathi',
     images: ['finsathi1.png','finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png'],
-    featured: false,
   },
 ]
 
-// ─── AutoGallery ─────────────────────────────────────────────────────────────
-// Single <img> crossfades between screenshots every 2.5 s.
-// Pauses on hover. Thin accent progress bars at the bottom — clickable to jump.
-// Preloads next image before swap so the transition is seamless.
+// ─── DeviceGallery ────────────────────────────────────────────────────────────
+// Shows device mockup screenshots with objectFit: contain so the full
+// laptop+phone composite is never cropped. Auto-cycles every 2.5 s,
+// pauses on hover, progress bars at bottom are clickable.
 
-function AutoGallery({ folder, images, height }) {
+function DeviceGallery({ folder, images }) {
   const urls = images.map((f) => `/project_image/${folder}/${f}`)
   const [idx, setIdx]         = useState(0)
   const [visible, setVisible] = useState(true)
   const [paused, setPaused]   = useState(false)
 
-  // Preload the next image so the fade looks instant
+  // Preload next image before the swap
   useEffect(() => {
-    const next = new Image()
-    next.src = urls[(idx + 1) % urls.length]
+    const img = new Image()
+    img.src = urls[(idx + 1) % urls.length]
   }, [idx]) // eslint-disable-line
 
-  // Auto-advance
+  // Auto-advance timer
   useEffect(() => {
     if (paused || urls.length <= 1) return
     const id = setInterval(() => goTo(), 2500)
@@ -87,43 +83,48 @@ function AutoGallery({ folder, images, height }) {
     setTimeout(() => {
       setIdx(next !== undefined ? next : (i) => (i + 1) % urls.length)
       setVisible(true)
-    }, 320)
+    }, 300)
   }
-
-  const isAbsolute = height === '100%'
 
   return (
     <div
       style={{
         position: 'relative',
-        height: isAbsolute ? '100%' : height,
-        overflow: 'hidden',
-        background: '#0c0c0c',
-        flexShrink: 0,
-        ...(isAbsolute ? { position: 'absolute', inset: 0 } : {}),
+        // Warm dark background so the device frame blends naturally
+        background: 'radial-gradient(ellipse at center, #1f1a12 0%, #0F1410 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px 16px',
+        minHeight: 240,
       }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
+      {/* Device mockup image — contain so laptop+phone composite is never cropped */}
       <img
         src={urls[idx]}
         alt=""
         style={{
-          width: '100%', height: '100%',
-          objectFit: 'cover', display: 'block',
+          width: '100%',
+          maxHeight: 260,
+          objectFit: 'contain',
+          display: 'block',
           opacity: visible ? 1 : 0,
-          transition: 'opacity 0.35s ease',
+          transition: 'opacity 0.32s ease',
+          // Subtle drop shadow so the device lifts off the background
+          filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.55))',
         }}
       />
 
-      {/* Counter badge — shows on hover */}
+      {/* Image counter — shows on hover */}
       {paused && urls.length > 1 && (
         <div style={{
-          position: 'absolute', top: 8, right: 8,
-          background: 'rgba(0,0,0,0.6)', borderRadius: 4,
-          padding: '2px 8px', fontSize: 10,
-          fontFamily: 'var(--font-mono)', color: 'rgba(255,255,255,0.7)',
-          backdropFilter: 'blur(4px)',
+          position: 'absolute', top: 10, right: 10,
+          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+          borderRadius: 5, padding: '2px 9px',
+          fontSize: 10, fontFamily: 'var(--font-mono)',
+          color: 'rgba(255,255,255,0.65)',
         }}>
           {idx + 1} / {urls.length}
         </div>
@@ -133,7 +134,7 @@ function AutoGallery({ folder, images, height }) {
       {urls.length > 1 && (
         <div style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
-          display: 'flex', gap: 2, padding: '0 8px 8px',
+          display: 'flex', gap: 2, padding: '0 10px 10px',
         }}>
           {urls.map((_, i) => (
             <button
@@ -143,8 +144,8 @@ function AutoGallery({ folder, images, height }) {
               style={{
                 flex: 1, height: 3, border: 'none', padding: 0,
                 borderRadius: 2, cursor: 'pointer',
-                background: i === idx ? ACCENT : 'rgba(255,255,255,0.2)',
-                transform: i === idx ? 'scaleY(1.5)' : 'scaleY(1)',
+                background: i === idx ? ACCENT : 'rgba(255,255,255,0.18)',
+                transform: i === idx ? 'scaleY(1.6)' : 'scaleY(1)',
                 transition: 'background 0.3s, transform 0.2s',
               }}
             />
@@ -155,170 +156,118 @@ function AutoGallery({ folder, images, height }) {
   )
 }
 
-// ─── FeaturedCard — horizontal split ─────────────────────────────────────────
+// ─── ProjectCard — same horizontal layout for all 4 ──────────────────────────
 
-function FeaturedCard({ project }) {
+function ProjectCard({ project }) {
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: '42% 1fr',
+        gridTemplateColumns: '46% 1fr',
         borderRadius: 14, overflow: 'hidden',
-        border: '1px solid rgba(196,145,63,0.12)',
-        background: '#1C1710', minHeight: 260,
+        border: '1px solid rgba(196,145,63,0.13)',
+        background: '#1C1710',
         transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.38)'
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.4)'
         e.currentTarget.style.transform = 'translateY(-3px)'
         e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.13)'
         e.currentTarget.style.transform = 'translateY(0)'
         e.currentTarget.style.boxShadow = 'none'
       }}
     >
-      {/* Left — gallery fills card height */}
-      <div style={{ position: 'relative' }}>
-        <AutoGallery folder={project.folder} images={project.images} height="100%" />
-        {/* Soft right-edge blend into content panel */}
-        <div style={{
-          position: 'absolute', inset: 0, pointerEvents: 'none',
-          background: 'linear-gradient(to right, transparent 70%, #1C1710)',
-        }} />
+      {/* Left — device gallery */}
+      <div style={{
+        borderRight: '1px solid rgba(196,145,63,0.08)',
+      }}>
+        <DeviceGallery folder={project.folder} images={project.images} />
       </div>
 
       {/* Right — content */}
-      <div style={{ padding: '26px 26px 22px', display: 'flex', flexDirection: 'column' }}>
+      <div style={{
+        padding: '26px 24px 22px',
+        display: 'flex', flexDirection: 'column',
+      }}>
         {project.badge && (
           <div style={{ marginBottom: 10 }}>
             <Badge color={project.badgeColor}>{project.badge}</Badge>
           </div>
         )}
 
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
-          <h3 style={{ color: '#EDE4CF', fontSize: 18, fontFamily: 'var(--font-serif)', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>
+        <div style={{
+          display: 'flex', alignItems: 'flex-start',
+          justifyContent: 'space-between', gap: 10, marginBottom: 10,
+        }}>
+          <h3 style={{
+            color: '#EDE4CF', fontSize: 17,
+            fontFamily: 'var(--font-serif)', fontWeight: 600,
+            margin: 0, lineHeight: 1.3,
+          }}>
             {project.title}
           </h3>
           <div style={{ display: 'flex', gap: 12, flexShrink: 0, paddingTop: 2 }}>
-            <a href={project.github} target="_blank" rel="noreferrer"
+            <a
+              href={project.github} target="_blank" rel="noreferrer"
               style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
               onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
               onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
-            ><GitHubIcon size={15} /></a>
+              title="Source code"
+            >
+              <GitHubIcon size={15} />
+            </a>
             {project.demo && (
-              <a href={project.demo} target="_blank" rel="noreferrer"
+              <a
+                href={project.demo} target="_blank" rel="noreferrer"
                 style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
-              ><ExternalLink size={15} /></a>
+                title="Live demo"
+              >
+                <ExternalLink size={15} />
+              </a>
             )}
           </div>
         </div>
 
-        <p style={{ color: '#9A8E78', fontSize: 13, lineHeight: '1.7', margin: '0 0 18px', flex: 1 }}>
+        <p style={{
+          color: '#9A8E78', fontSize: 13, lineHeight: '1.72',
+          margin: '0 0 18px', flex: 1,
+        }}>
           {project.description}
         </p>
 
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
           {project.tags.map((t) => <Tag key={t} size="xs">{t}</Tag>)}
+
           {project.demo && (
-            <a href={project.demo} target="_blank" rel="noreferrer"
+            <a
+              href={project.demo} target="_blank" rel="noreferrer"
               style={{
-                marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 5,
+                marginLeft: 'auto',
+                display: 'inline-flex', alignItems: 'center', gap: 5,
                 fontSize: 11, fontFamily: 'var(--font-mono)', color: ACCENT,
                 border: '1px solid rgba(196,145,63,0.3)', borderRadius: 6,
-                padding: '4px 10px', textDecoration: 'none', transition: 'all 0.2s',
+                padding: '4px 10px', textDecoration: 'none',
+                transition: 'all 0.2s',
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.09)'; e.currentTarget.style.borderColor = ACCENT }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.3)' }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', animation: 'livePulse 2s infinite' }} />
-              Live
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ─── CompactCard — vertical, small image ─────────────────────────────────────
-
-function CompactCard({ project }) {
-  return (
-    <div
-      style={{
-        display: 'flex', flexDirection: 'column',
-        borderRadius: 12, overflow: 'hidden',
-        border: '1px solid rgba(196,145,63,0.12)',
-        background: '#1C1710',
-        transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)'
-        e.currentTarget.style.transform = 'translateY(-3px)'
-        e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.3)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      <AutoGallery folder={project.folder} images={project.images} height={170} />
-
-      <div style={{ padding: '18px 20px 20px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        {project.badge && (
-          <div style={{ marginBottom: 8 }}>
-            <Badge color={project.badgeColor}>{project.badge}</Badge>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-          <h3 style={{ color: '#EDE4CF', fontSize: 15, fontFamily: 'var(--font-serif)', fontWeight: 600, margin: 0, lineHeight: 1.35 }}>
-            {project.title}
-          </h3>
-          <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 1 }}>
-            <a href={project.github} target="_blank" rel="noreferrer"
-              style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
-            ><GitHubIcon size={14} /></a>
-            {project.demo && (
-              <a href={project.demo} target="_blank" rel="noreferrer"
-                style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
-              ><ExternalLink size={14} /></a>
-            )}
-          </div>
-        </div>
-
-        <p style={{ color: '#9A8E78', fontSize: 12, lineHeight: '1.7', margin: '0 0 14px', flex: 1 }}>
-          {project.description}
-        </p>
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
-          {project.tags.slice(0, 4).map((t) => <Tag key={t} size="xs">{t}</Tag>)}
-          {project.tags.length > 4 && (
-            <span style={{ fontSize: 10, color: '#5C5446', fontFamily: 'var(--font-mono)' }}>
-              +{project.tags.length - 4}
-            </span>
-          )}
-          {project.demo && (
-            <a href={project.demo} target="_blank" rel="noreferrer"
-              style={{
-                marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 4,
-                fontSize: 10, fontFamily: 'var(--font-mono)', color: ACCENT,
-                border: '1px solid rgba(196,145,63,0.28)', borderRadius: 5,
-                padding: '3px 8px', textDecoration: 'none', transition: 'background 0.2s',
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(196,145,63,0.09)'
+                e.currentTarget.style.borderColor = ACCENT
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.08)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(196,145,63,0.3)'
+              }}
             >
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80' }} />
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: '#4ade80',
+                animation: 'livePulse 2s infinite',
+              }} />
               Live
             </a>
           )}
@@ -331,21 +280,20 @@ function CompactCard({ project }) {
 // ─── Section ─────────────────────────────────────────────────────────────────
 
 export default function Projects() {
-  const headingRef  = useScrollAnimation()
-  const featuredRef = useScrollAnimation()
-  const othersRef   = useScrollAnimation()
-
-  const featured = projects.filter((p) => p.featured)
-  const others   = projects.filter((p) => !p.featured)
+  const headingRef = useScrollAnimation()
+  const cardsRef   = useScrollAnimation()
 
   return (
     <section id="projects" style={{ padding: '72px 24px' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
+        {/* Heading */}
         <div ref={headingRef} className="reveal" style={{ marginBottom: 48 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
             <div style={{ width: 28, height: 1, background: ACCENT }} />
-            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>02. projects</span>
+            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+              02. projects
+            </span>
           </div>
           <h2 style={{
             color: '#EDE4CF', margin: '0 0 10px',
@@ -357,20 +305,19 @@ export default function Projects() {
           </h2>
           <p style={{ color: '#9A8E78', fontSize: 14, lineHeight: '1.6', margin: 0 }}>
             AI-powered tools, autonomous agents, and real-world applications.
-            Hover any card to pause — click the bars to jump to a screenshot.
+            Hover any card to pause — click the bars to jump between screenshots.
           </p>
         </div>
 
-        {/* Featured — full-width horizontal cards */}
-        <div ref={featuredRef} className="reveal-children"
-          style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}>
-          {featured.map((p) => <FeaturedCard key={p.title} project={p} />)}
-        </div>
-
-        {/* Others — compact 2-col */}
-        <div ref={othersRef} className="reveal-children"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
-          {others.map((p) => <CompactCard key={p.title} project={p} />)}
+        {/* All 4 cards — same style, stacked */}
+        <div
+          ref={cardsRef}
+          className="reveal-children"
+          style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
+        >
+          {projects.map((p) => (
+            <ProjectCard key={p.title} project={p} />
+          ))}
         </div>
 
       </div>
@@ -378,10 +325,11 @@ export default function Projects() {
       <style>{`
         @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
 
-        /* Mobile: stack horizontal cards, single-col others */
+        /* Stack cards on mobile */
         @media (max-width: 640px) {
-          #projects .featured-grid { grid-template-columns: 1fr !important; }
-          #projects .others-grid   { grid-template-columns: 1fr !important; }
+          #projects [style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
     </section>
