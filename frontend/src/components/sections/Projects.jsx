@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExternalLink, Github } from 'lucide-react'
+import { ExternalLink} from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon } from '../../lib/icons'
 import Badge from '../ui/Badge'

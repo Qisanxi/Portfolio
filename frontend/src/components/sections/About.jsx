@@ -8,6 +8,14 @@ const GROUND_2 = '#1C1710'
 
 const timeline = [
   {
+    year: '2026', period: 'Aug – Present',
+    title: 'Ongoing Hackathon Journey : MLH, Shipathon & GIBC ---Building AI Models, Agents From Scratch ',
+    subtitle: 'Hackathon Participant',
+    description: 'actively participating in MLH Hackathons, Shipathon & GIBC--- building AI  Agents ,models and web tools from scratch.',
+    color: '#8754e0',
+  },
+
+  {
     year: '2026', period: 'Jul – Aug',
     title: 'AMD AI DevMaster Hackathon',
     subtitle: 'Hackathon Participant',
@@ -22,7 +30,7 @@ const timeline = [
     color: ACCENT,
   },
   {
-    year: '2026', period: 'May – Jul',
+    year: '2026', period: 'June – Jul',
     title: 'Mobile App Development',
     subtitle: 'Remote Internship — Excelerate',
     description: 'Architected a comprehensive state management system for a Flutter mobile app.',
