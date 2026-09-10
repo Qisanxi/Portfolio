@@ -24,7 +24,7 @@ const skillGroups = [
   {
     category: 'Cloud & Infra',
     color: '#7BC47A',
-    skills: ['AWS App Runner', 'ECR', 'Docker', 'Linux'],
+    skills: ['AWS', 'ECR', 'Docker', 'Linux'],
   },
   {
     category: 'Tools',

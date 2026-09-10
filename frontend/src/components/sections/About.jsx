@@ -45,13 +45,6 @@ const timeline = [
   },
 ]
 
-const stats = [
-  { value: '5+', label: 'Projects shipped' },
-  { value: '1',  label: 'Hackathon won' },
-  { value: '2',  label: 'Internships' },
-  { value: '4',  label: 'Certifications' },
-]
-
 export default function About() {
   const headingRef = useScrollAnimation()
   const bioRef = useScrollAnimation()
@@ -89,20 +82,6 @@ export default function About() {
               Currently pursuing a BCA at Patliputra University and deepening expertise
               in AI agents, RAG pipelines, and AWS App Runner deployments.
             </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              {stats.map(({ value, label }) => (
-                <div key={label} style={{
-                  padding: '14px 16px',
-                  borderRadius: '10px',
-                  background: GROUND_2,
-                  border: '1px solid rgba(196,145,63,0.1)',
-                }}>
-                  <div style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', fontWeight: 600, color: TEXT, marginBottom: '3px' }}>{value}</div>
-                  <div style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{label}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Right — timeline */}
