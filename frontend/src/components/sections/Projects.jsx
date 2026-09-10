@@ -9,7 +9,6 @@ const TEXT = '#EDE4CF'
 const MUTED = '#9A8E78'
 const FAINT = '#5C5446'
 const CARD_BG = '#1C1710'
-const CARD_BG_RAISED = '#221A0F'
 
 const projects = [
   {
@@ -149,7 +148,7 @@ function DeviceDisplay({ project, compact }) {
       const img = new window.Image()
       img.src = urls[(idx + 1) % urls.length]
     }
-  }, [idx]) // eslint-disable-line
+  }, [idx])
 
   useEffect(() => {
     if (paused || urls.length <= 1) return
@@ -158,7 +157,7 @@ function DeviceDisplay({ project, compact }) {
       setTimeout(() => { setIdx((i) => (i + 1) % urls.length); setVisible(true) }, 280)
     }, 2800)
     return () => clearInterval(id)
-  }, [paused, idx, urls.length]) // eslint-disable-line
+  }, [paused, idx, urls.length])
 
   const goTo = (i) => {
     setVisible(false)
@@ -341,114 +340,15 @@ function FeaturedCard({ project }) {
   )
 }
 
-// ─── Compact card — used for the bottom grid (last 2 projects) ────────────────
-function CompactCard({ project }) {
-  return (
-    <div
-      style={{
-        borderRadius: 14,
-        overflow: 'hidden',
-        border: '1px solid rgba(196,145,63,0.12)',
-        background: CARD_BG,
-        display: 'flex', flexDirection: 'column',
-        transition: 'border-color 0.25s, box-shadow 0.25s, transform 0.25s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.38)'
-        e.currentTarget.style.transform = 'translateY(-3px)'
-        e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)'
-        e.currentTarget.style.transform = 'translateY(0)'
-        e.currentTarget.style.boxShadow = 'none'
-      }}
-    >
-      {/* Top — device display */}
-      <DeviceDisplay project={project} compact={true} />
-
-      {/* Bottom — content */}
-      <div style={{ padding: '18px 20px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
-        {project.badge && (
-          <div style={{ marginBottom: 8 }}>
-            <Badge color={project.badgeColor}>{project.badge}</Badge>
-          </div>
-        )}
-
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 8 }}>
-          <h3 style={{
-            color: TEXT,
-            fontSize: 15,
-            fontFamily: 'var(--font-serif)',
-            fontWeight: 600,
-            margin: 0,
-            lineHeight: 1.3,
-            letterSpacing: '-0.01em',
-          }}>
-            {project.title}
-          </h3>
-          <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 2 }}>
-            <a href={project.github} target="_blank" rel="noreferrer"
-              style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
-            ><GitHubIcon size={14} /></a>
-            {project.demo && (
-              <a href={project.demo} target="_blank" rel="noreferrer"
-                style={{ color: FAINT, transition: 'color 0.18s', display: 'flex' }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
-              ><ExternalLink size={14} /></a>
-            )}
-          </div>
-        </div>
-
-        <p style={{ color: MUTED, fontSize: 12, lineHeight: '1.7', margin: '0 0 14px', flex: 1 }}>
-          {project.description}
-        </p>
-
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
-          {project.tags.map((t) => (
-            <span key={t} style={{
-              fontSize: 10, fontFamily: 'var(--font-mono)',
-              color: MUTED,
-              background: 'rgba(196,145,63,0.06)',
-              border: '1px solid rgba(196,145,63,0.14)',
-              borderRadius: 5, padding: '2px 7px',
-            }}>{t}</span>
-          ))}
-          {project.demo && (
-            <a
-              href={project.demo} target="_blank" rel="noreferrer"
-              style={{
-                marginLeft: 'auto',
-                display: 'inline-flex', alignItems: 'center', gap: 5,
-                fontSize: 10, fontFamily: 'var(--font-mono)', color: ACCENT,
-                border: '1px solid rgba(196,145,63,0.28)', borderRadius: 5,
-                padding: '3px 9px', textDecoration: 'none', transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.09)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent' }}
-            >
-              <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', animation: 'livePulse 2s infinite' }} />
-              Live
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // ─── Section ─────────────────────────────────────────────────────────────────
 export default function Projects() {
   const headingRef = useScrollAnimation()
-  const featuredRef = useScrollAnimation()
   const gridRef = useScrollAnimation()
 
-  const featured = projects.slice(0, 2)
-  const grid     = projects.slice(2)
-
+  // All 4 projects use the same horizontal FeaturedCard layout.
+  // Uniform treatment signals "4 equally-strong projects" rather than
+  // "2 featured + 2 filler". Single column reads cleaner than a 2x2 grid
+  // because every project gets full-width device-mockup real estate.
   return (
     <section id="projects" style={{ padding: '72px 24px' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
@@ -472,26 +372,13 @@ export default function Projects() {
           </p>
         </div>
 
-        {/* Featured — full-width horizontal cards */}
-        <div
-          ref={featuredRef}
-          className="reveal-children"
-          style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 20 }}
-        >
-          {featured.map((p) => <FeaturedCard key={p.title} project={p} />)}
-        </div>
-
-        {/* Grid — compact 2-col cards */}
+        {/* All projects as uniform horizontal cards — single column */}
         <div
           ref={gridRef}
           className="reveal-children"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-            gap: 20,
-          }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
         >
-          {grid.map((p) => <CompactCard key={p.title} project={p} />)}
+          {projects.map((p) => <FeaturedCard key={p.title} project={p} />)}
         </div>
 
       </div>
@@ -499,7 +386,7 @@ export default function Projects() {
       <style>{`
         @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-        /* Stack featured cards on mobile */
+        /* Stack featured cards on mobile — device mockup on top, content below */
         @media (max-width: 640px) {
           .project-card {
             grid-template-columns: 1fr !important;

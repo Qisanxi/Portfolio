@@ -9,9 +9,9 @@ const GROUND_2 = '#1C1710'
 const timeline = [
   {
     year: '2026', period: 'Aug – Present',
-    title: 'Ongoing Hackathon Journey : MLH, Shipathon & GIBC ---Building AI Models, Agents From Scratch ',
+    title: 'Ongoing Hackathon Journey — MLH, Shipathon & GIBC',
     subtitle: 'Hackathon Participant',
-    description: 'actively participating in MLH Hackathons, Shipathon & GIBC--- building AI  Agents ,models and web tools from scratch.',
+    description: 'Actively participating in MLH Hackathons, Shipathon & GIBC — building AI agents, models and web tools from scratch.',
     color: '#8754e0',
   },
 
@@ -45,6 +45,13 @@ const timeline = [
   },
 ]
 
+const stats = [
+  { value: '5+',  label: 'Projects shipped' },
+  { value: '4',   label: 'Hackathons' },
+  { value: '2',   label: 'Internships' },
+  { value: '6',   label: 'Certifications' },
+]
+
 export default function About() {
   const headingRef = useScrollAnimation()
   const bioRef = useScrollAnimation()
@@ -64,24 +71,40 @@ export default function About() {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px' }}>
+        {/* Two columns — both start at the same vertical position via alignItems: 'start' */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'start' }}>
 
-          {/* Left — bio + stats */}
+          {/* Left — bio + stats (restored to balance the right column height) */}
           <div ref={bioRef} className="reveal">
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '16px', fontSize: '14px' }}>
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '14px', fontSize: '14px' }}>
               I am a self-driven developer with a strong foundation in Python backend and
               AI-integrated full-stack development. I got here through hackathons,
               open-source contributions, and shipping end-to-end products — not tutorials.
             </p>
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '16px', fontSize: '14px' }}>
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '14px', fontSize: '14px' }}>
               I build things that automate the boring parts of work — whether that is
               collecting school fees with a WhatsApp bot, or publishing developer content
               to LinkedIn without touching a keyboard after setup.
             </p>
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '28px', fontSize: '14px' }}>
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '24px', fontSize: '14px' }}>
               Currently pursuing a BCA at Patliputra University and deepening expertise
               in AI agents, RAG pipelines, and AWS App Runner deployments.
             </p>
+
+            {/* Stats grid — balances the column height against the timeline */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+              {stats.map(({ value, label }) => (
+                <div key={label} style={{
+                  padding: '14px 16px',
+                  borderRadius: '10px',
+                  background: GROUND_2,
+                  border: '1px solid rgba(196,145,63,0.1)',
+                }}>
+                  <div style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', fontWeight: 600, color: TEXT, marginBottom: '3px' }}>{value}</div>
+                  <div style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{label}</div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Right — timeline */}
