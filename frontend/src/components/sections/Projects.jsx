@@ -21,8 +21,9 @@ const projects = [
     badgeColor: '#C4913F',
     folder: 'DueAlert',
     images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
-    hasPhone: true,   // show phone overlay beside the laptop
-    phoneImage: 'duealert4.png',
+    hasPhone: true,
+    // duealert7.png — pop-up window showing AI-generated WhatsApp message to a parent (Suman Sen) about pending fees
+    phoneImage: 'duealert7.png',
   },
   {
     title: 'AutoPost',
@@ -33,8 +34,10 @@ const projects = [
     badge: 'Google Agentic Hackathon',
     badgeColor: '#4285f4',
     folder: 'AutoPost',
-    images: ['Autopost1.png','Autopost2.png','Autopost3.png','Autopost4.png','Autopost5.png','Autopost6.png'],
-    hasPhone: false,
+    images: ['Autopost1.png','Autopost2.png','Autopost4.png','Autopost5.png','Autopost6.png'],
+    hasPhone: true,
+    // Autopost3.png — live demo page showing the agent running
+    phoneImage: 'Autopost3.png',
   },
   {
     title: 'WhatsApp Priority Agent',
@@ -45,8 +48,10 @@ const projects = [
     badge: 'AMD AI DevMaster Hackathon',
     badgeColor: '#f97316',
     folder: 'whatsapp_priority_agent',
-    images: ['agent1.png','agent2.png','agent3.png','agent4.png','agent5.png'],
-    hasPhone: false,
+    images: ['agent1.png','agent2.png','agent4.png','agent5.png'],
+    hasPhone: true,
+    // agent3.png — dashboard with WhatsApp chat conversation between Demo Customer and AI Agent
+    phoneImage: 'agent3.png',
   },
   {
     title: 'FinSathi',
@@ -57,8 +62,10 @@ const projects = [
     badge: null,
     badgeColor: null,
     folder: 'finsathi',
-    images: ['finsathi1.png','finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png'],
-    hasPhone: false,
+    images: ['finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png','finsathi6.png'],
+    hasPhone: true,
+    // finsathi1.png — chat interface where FinSathi answers a user's question about SIPs
+    phoneImage: 'finsathi1.png',
   },
 ]
 
