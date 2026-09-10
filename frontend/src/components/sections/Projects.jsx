@@ -1,27 +1,23 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { ExternalLink } from 'lucide-react'
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
 import { GitHubIcon } from '../../lib/icons'
 import Badge from '../ui/Badge'
 import Tag from '../ui/Tag'
 
-// Project screenshots live in /public/project_image/<Folder>/<file>.png
-// Files in /public are served as static assets at the root, so the URL
-// for project_image/DueAlert/duealert1.png is /project_image/DueAlert/duealert1.png.
-//
-// We list the filenames explicitly per project so there are no surprises
-// with filesystem casing (AutoPost has mixed Autopost/autopost naming).
+const ACCENT = '#C4913F'
+
 const projects = [
   {
     title: 'DueAlert',
-    description: 'AI-powered fee collection and student payment tracking platform for coaching centers. Identifies payment-risk patterns, generates personalized reminders with Gemini, and monitors collection from a centralized dashboard.',
+    description: 'AI-powered fee collection and student payment tracking platform for coaching centres. Identifies payment-risk patterns, generates personalised reminders with Gemini, and monitors collection from a centralised dashboard.',
     tags: ['Python', 'FastAPI', 'React.js', 'Google GenAI SDK', 'Firebase'],
     github: 'https://github.com/Qisanxi/DueAlert',
     demo: 'https://duealert-bbb61.web.app',
     badge: 'Gemini XPrize Hackathon',
-    badgeColor: '#D4A574',
-    imagesFolder: 'DueAlert',
-    images: ['duealert1.png', 'duealert2.png', 'duealert3.png', 'duealert4.png', 'duealert5.png', 'duealert6.png'],
+    badgeColor: '#C4913F',
+    folder: 'DueAlert',
+    images: ['duealert1.png','duealert2.png','duealert3.png','duealert4.png','duealert5.png','duealert6.png'],
   },
   {
     title: 'AutoPost',
@@ -31,133 +27,128 @@ const projects = [
     demo: 'https://autopost-9c37c.web.app/#/',
     badge: 'Google Agentic Hackathon',
     badgeColor: '#4285f4',
-    imagesFolder: 'AutoPost',
-    images: ['Autopost1.png', 'Autopost2.png', 'Autopost3.png', 'Autopost4.png', 'Autopost5.png', 'Autopost6.png'],
+    folder: 'AutoPost',
+    images: ['Autopost1.png','Autopost2.png','Autopost3.png','Autopost4.png','Autopost5.png','Autopost6.png'],
   },
   {
     title: 'WhatsApp Priority Agent',
-    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm. Recognized by AMD Developer Program.',
+    description: 'AI-driven agent that auto-detects message priority (Urgent / High / Normal / Low) and generates contextual replies. Built on Qwen3-35B via AMD Radeon Cloud ROCm. Recognised by AMD Developer Program.',
     tags: ['FastAPI', 'React', 'AMD ROCm', 'Qwen3', 'PostgreSQL'],
     github: 'https://github.com/Qisanxi/Whatsapp_priority_agent',
     demo: null,
     badge: 'AMD AI DevMaster Hackathon',
     badgeColor: '#f97316',
-    imagesFolder: 'whatsapp_priority_agent',
-    images: ['agent1.png', 'agent2.png', 'agent3.png', 'agent4.png', 'agent5.png'],
+    folder: 'whatsapp_priority_agent',
+    images: ['agent1.png','agent2.png','agent3.png','agent4.png','agent5.png'],
   },
   {
     title: 'FinSathi',
-    description: 'Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user\'s profile. References SEBI, AMFI, and IRDAI regulations.',
+    description: "Financial literacy assistant for Indian users. Explains mutual funds, insurance, and tax-saving options in plain language personalised to each user's profile. References SEBI, AMFI, and IRDAI regulations.",
     tags: ['Python', 'Streamlit', 'Google Gemini', 'Google GenAI SDK'],
     github: 'https://github.com/Qisanxi/finsathi.ai',
     demo: null,
     badge: null,
     badgeColor: null,
-    imagesFolder: 'finsathi',
-    images: ['finsathi1.png', 'finsathi2.png', 'finsathi3.png', 'finsathi4.png', 'finsathi5.png'],
+    folder: 'finsathi',
+    images: ['finsathi1.png','finsathi2.png','finsathi3.png','finsathi4.png','finsathi5.png'],
   },
 ]
 
-/**
- * Gallery — main image with thumbnail strip below.
- *
- * Layout:
- *   ┌──────────────────────────────────────┐
- *   │                                      │
- *   │   Main image (16:9, fixed 320px h)   │
- *   │                                      │
- *   ├──────────────────────────────────────┤
- *   │ ▒ ▒ ▒ ▒ ▒ ▒                          │  ← thumbnails, 56×40, object-fit cover
- *   ├──────────────────────────────────────┤
- *   │ [badge]                              │
- *   │ Title                          GH ↗  │
- *   │ Description...                       │
- *   │ [tags]                  [Live ↗]    │
- *   └──────────────────────────────────────┘
- *
- * - Click thumbnail → main image swaps with a 200ms opacity transition
- * - Only first image per card is eager-loaded; rest are lazy
- *   (28 PNGs / ~6MB total — without lazy load the page feels sluggish)
- * - Selected thumbnail gets a 2px accent border
- */
-function Gallery({ project }) {
-  const [activeIndex, setActiveIndex] = useState(0)
+// ─── DeviceGallery ────────────────────────────────────────────────────────────
+// Shows device mockup screenshots with objectFit: contain so the full
+// laptop+phone composite is never cropped. Auto-cycles every 2.5 s,
+// pauses on hover, progress bars at bottom are clickable.
 
-  // Build full URLs once per project. useMemo prevents URL re-creation
-  // on every render cycle (which would otherwise re-decode the same image).
-  // Project images are stable for a project's lifetime, so an empty dep
-  // array is correct here — but eslint wants the dep declared, so we
-  // include `project` which only changes when the parent passes a different
-  // project instance (i.e. never, in practice).
-  const imageUrls = useMemo(
-    () => (project.images || []).map((file) => `/project_image/${project.imagesFolder}/${file}`),
-    [project.imagesFolder, project.images]
-  )
+function DeviceGallery({ folder, images }) {
+  const urls = images.map((f) => `/project_image/${folder}/${f}`)
+  const [idx, setIdx]         = useState(0)
+  const [visible, setVisible] = useState(true)
+  const [paused, setPaused]   = useState(false)
 
-  if (imageUrls.length === 0) return null
+  // Preload next image before the swap
+  useEffect(() => {
+    const img = new Image()
+    img.src = urls[(idx + 1) % urls.length]
+  }, [idx]) // eslint-disable-line
+
+  // Auto-advance timer
+  useEffect(() => {
+    if (paused || urls.length <= 1) return
+    const id = setInterval(() => goTo(), 2500)
+    return () => clearInterval(id)
+  }, [paused, idx, urls.length]) // eslint-disable-line
+
+  function goTo(next) {
+    setVisible(false)
+    setTimeout(() => {
+      setIdx(next !== undefined ? next : (i) => (i + 1) % urls.length)
+      setVisible(true)
+    }, 300)
+  }
 
   return (
-    <div>
-      {/* Main image — 16:9 crop, fixed height so all cards are uniform */}
-      <div
-        className="w-full overflow-hidden rounded-t-xl bg-slate-900/40"
-        style={{ height: '320px' }}
-      >
-        <img
-          key={activeIndex}
-          src={imageUrls[activeIndex]}
-          alt={`${project.title} — screenshot ${activeIndex + 1}`}
-          loading={activeIndex === 0 ? 'eager' : 'lazy'}
-          decoding="async"
-          className="w-full h-full object-cover"
-          style={{
-            display: 'block',
-            animation: 'galleryFadeIn 220ms ease-out',
-          }}
-        />
-      </div>
+    <div
+      style={{
+        position: 'relative',
+        // Warm dark background so the device frame blends naturally
+        background: 'radial-gradient(ellipse at center, #1f1a12 0%, #0F1410 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '20px 16px',
+        minHeight: 240,
+      }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      {/* Device mockup image — contain so laptop+phone composite is never cropped */}
+      <img
+        src={urls[idx]}
+        alt=""
+        style={{
+          width: '100%',
+          maxHeight: 260,
+          objectFit: 'contain',
+          display: 'block',
+          opacity: visible ? 1 : 0,
+          transition: 'opacity 0.32s ease',
+          // Subtle drop shadow so the device lifts off the background
+          filter: 'drop-shadow(0 8px 24px rgba(0,0,0,0.55))',
+        }}
+      />
 
-      {/* Thumbnail strip — horizontal, no scroll (max 6 thumbs per card) */}
-      {imageUrls.length > 1 && (
-        <div
-          className="flex gap-1.5 px-3 py-2.5 overflow-x-auto"
-          style={{
-            background: 'rgba(0,0,0,0.15)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)',
-          }}
-        >
-          {imageUrls.map((url, i) => (
+      {/* Image counter — shows on hover */}
+      {paused && urls.length > 1 && (
+        <div style={{
+          position: 'absolute', top: 10, right: 10,
+          background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+          borderRadius: 5, padding: '2px 9px',
+          fontSize: 10, fontFamily: 'var(--font-mono)',
+          color: 'rgba(255,255,255,0.65)',
+        }}>
+          {idx + 1} / {urls.length}
+        </div>
+      )}
+
+      {/* Progress bars */}
+      {urls.length > 1 && (
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          display: 'flex', gap: 2, padding: '0 10px 10px',
+        }}>
+          {urls.map((_, i) => (
             <button
-              key={url}
-              type="button"
-              onClick={() => setActiveIndex(i)}
-              aria-label={`View screenshot ${i + 1} of ${project.title}`}
-              aria-pressed={i === activeIndex}
-              className="flex-shrink-0 overflow-hidden rounded transition-all duration-150 cursor-pointer"
+              key={i}
+              onClick={(e) => { e.stopPropagation(); goTo(i) }}
+              aria-label={`Screenshot ${i + 1}`}
               style={{
-                width: '56px',
-                height: '40px',
-                border: i === activeIndex
-                  ? '2px solid var(--color-accent)'
-                  : '2px solid transparent',
-                opacity: i === activeIndex ? 1 : 0.55,
+                flex: 1, height: 3, border: 'none', padding: 0,
+                borderRadius: 2, cursor: 'pointer',
+                background: i === idx ? ACCENT : 'rgba(255,255,255,0.18)',
+                transform: i === idx ? 'scaleY(1.6)' : 'scaleY(1)',
+                transition: 'background 0.3s, transform 0.2s',
               }}
-              onMouseEnter={(e) => {
-                if (i !== activeIndex) e.currentTarget.style.opacity = '0.85'
-              }}
-              onMouseLeave={(e) => {
-                if (i !== activeIndex) e.currentTarget.style.opacity = '0.55'
-              }}
-            >
-              <img
-                src={url}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover"
-                style={{ display: 'block' }}
-              />
-            </button>
+            />
           ))}
         </div>
       )}
@@ -165,67 +156,118 @@ function Gallery({ project }) {
   )
 }
 
+// ─── ProjectCard — same horizontal layout for all 4 ──────────────────────────
+
 function ProjectCard({ project }) {
   return (
     <div
-      className="group flex flex-col rounded-xl border overflow-hidden transition-all duration-300
-                 hover:-translate-y-1 hover:shadow-xl"
-      style={{ background: '#1C1710', borderColor: 'rgba(196,145,63,0.1)' }}
-      onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.35)' }}
-      onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.1)' }}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '46% 1fr',
+        borderRadius: 14, overflow: 'hidden',
+        border: '1px solid rgba(196,145,63,0.13)',
+        background: '#1C1710',
+        transition: 'border-color 0.25s, transform 0.25s, box-shadow 0.25s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.4)'
+        e.currentTarget.style.transform = 'translateY(-3px)'
+        e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,0.4)'
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = 'rgba(196,145,63,0.13)'
+        e.currentTarget.style.transform = 'translateY(0)'
+        e.currentTarget.style.boxShadow = 'none'
+      }}
     >
-      <Gallery project={project} />
+      {/* Left — device gallery */}
+      <div style={{
+        borderRight: '1px solid rgba(196,145,63,0.08)',
+      }}>
+        <DeviceGallery folder={project.folder} images={project.images} />
+      </div>
 
-      <div className="flex flex-col flex-1 p-6">
-        {/* Header row */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex flex-col gap-2">
-            {project.badge && (
-              <Badge color={project.badgeColor}>{project.badge}</Badge>
-            )}
-            <h3 className="text-white font-semibold text-lg leading-tight">{project.title}</h3>
+      {/* Right — content */}
+      <div style={{
+        padding: '26px 24px 22px',
+        display: 'flex', flexDirection: 'column',
+      }}>
+        {project.badge && (
+          <div style={{ marginBottom: 10 }}>
+            <Badge color={project.badgeColor}>{project.badge}</Badge>
           </div>
-          <div className="flex items-center gap-3 ml-4 shrink-0">
+        )}
+
+        <div style={{
+          display: 'flex', alignItems: 'flex-start',
+          justifyContent: 'space-between', gap: 10, marginBottom: 10,
+        }}>
+          <h3 style={{
+            color: '#EDE4CF', fontSize: 17,
+            fontFamily: 'var(--font-serif)', fontWeight: 600,
+            margin: 0, lineHeight: 1.3,
+          }}>
+            {project.title}
+          </h3>
+          <div style={{ display: 'flex', gap: 12, flexShrink: 0, paddingTop: 2 }}>
             <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer"
-              className="text-slate-500 hover:text-white transition-colors"
+              href={project.github} target="_blank" rel="noreferrer"
+              style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+              onMouseEnter={(e) => { e.currentTarget.style.color = '#EDE4CF' }}
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
               title="Source code"
             >
-              <GitHubIcon size={16} />
+              <GitHubIcon size={15} />
             </a>
             {project.demo && (
               <a
-                href={project.demo}
-                target="_blank"
-                rel="noreferrer"
-                className="text-slate-500 hover:text-accent transition-colors"
+                href={project.demo} target="_blank" rel="noreferrer"
+                style={{ color: '#5C5446', transition: 'color 0.2s', display: 'flex' }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#5C5446' }}
                 title="Live demo"
               >
-                <ExternalLink size={16} />
+                <ExternalLink size={15} />
               </a>
             )}
           </div>
         </div>
 
-        <p className="text-slate-400 text-sm leading-relaxed mb-5 flex-1">{project.description}</p>
+        <p style={{
+          color: '#9A8E78', fontSize: 13, lineHeight: '1.72',
+          margin: '0 0 18px', flex: 1,
+        }}>
+          {project.description}
+        </p>
 
-        {/* Footer row — tags + live button */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {project.tags.map((tag) => (
-            <Tag key={tag} size="xs">{tag}</Tag>
-          ))}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+          {project.tags.map((t) => <Tag key={t} size="xs">{t}</Tag>)}
+
           {project.demo && (
             <a
-              href={project.demo}
-              target="_blank"
-              rel="noreferrer"
-              className="ml-auto flex items-center gap-1.5 text-xs font-mono text-accent
-                         border border-accent/30 hover:border-accent hover:bg-accent/10
-                         px-3 py-1 rounded transition-all duration-200"
+              href={project.demo} target="_blank" rel="noreferrer"
+              style={{
+                marginLeft: 'auto',
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontSize: 11, fontFamily: 'var(--font-mono)', color: ACCENT,
+                border: '1px solid rgba(196,145,63,0.3)', borderRadius: 6,
+                padding: '4px 10px', textDecoration: 'none',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(196,145,63,0.09)'
+                e.currentTarget.style.borderColor = ACCENT
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent'
+                e.currentTarget.style.borderColor = 'rgba(196,145,63,0.3)'
+              }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span>
+              <span style={{
+                width: 6, height: 6, borderRadius: '50%',
+                background: '#4ade80',
+                animation: 'livePulse 2s infinite',
+              }} />
               Live
             </a>
           )}
@@ -235,44 +277,59 @@ function ProjectCard({ project }) {
   )
 }
 
+// ─── Section ─────────────────────────────────────────────────────────────────
+
 export default function Projects() {
   const headingRef = useScrollAnimation()
-  const gridRef = useScrollAnimation()
+  const cardsRef   = useScrollAnimation()
 
-  // Uniform grid — no more featured/non-featured split.
-  // Signals "4 equally-strong projects" rather than "2 good + 2 filler".
   return (
     <section id="projects" style={{ padding: '72px 24px' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto' }}>
 
-        <div ref={headingRef} className="reveal mb-12">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-            <div style={{ width: '28px', height: '1px', background: '#C4913F' }}></div>
-            <span style={{ color: '#C4913F', fontSize: '12px', fontFamily: 'var(--font-mono)' }}>02. projects</span>
+        {/* Heading */}
+        <div ref={headingRef} className="reveal" style={{ marginBottom: 48 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+            <div style={{ width: 28, height: 1, background: ACCENT }} />
+            <span style={{ color: ACCENT, fontSize: 12, fontFamily: 'var(--font-mono)' }}>
+              02. projects
+            </span>
           </div>
-          <h2 style={{ color: '#EDE4CF', fontSize: 'clamp(26px, 5vw, 36px)', fontFamily: 'var(--font-serif)', fontWeight: 600, letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 12px' }}>
+          <h2 style={{
+            color: '#EDE4CF', margin: '0 0 10px',
+            fontSize: 'clamp(26px, 5vw, 36px)',
+            fontFamily: 'var(--font-serif)', fontWeight: 600,
+            letterSpacing: '-0.02em', lineHeight: 1.2,
+          }}>
             Things I have built
           </h2>
-          <p style={{ color: '#9A8E78', fontSize: '14px', maxWidth: '480px', lineHeight: '1.6', margin: 0 }}>
-            AI-powered tools, autonomous agents, and real-world applications — built to solve actual problems.
+          <p style={{ color: '#9A8E78', fontSize: 14, lineHeight: '1.6', margin: 0 }}>
+            AI-powered tools, autonomous agents, and real-world applications.
+            Hover any card to pause — click the bars to jump between screenshots.
           </p>
         </div>
 
-        {/* Uniform grid — all cards same size, same treatment.
-            md:grid-cols-2 keeps cards reasonable size on desktop.
-            gap-6 gives breathing room for the gallery thumbnails. */}
-        <div ref={gridRef} className="reveal-children grid md:grid-cols-2 gap-6">
-          {projects.map((p) => <ProjectCard key={p.title} project={p} />)}
+        {/* All 4 cards — same style, stacked */}
+        <div
+          ref={cardsRef}
+          className="reveal-children"
+          style={{ display: 'flex', flexDirection: 'column', gap: 20 }}
+        >
+          {projects.map((p) => (
+            <ProjectCard key={p.title} project={p} />
+          ))}
         </div>
 
       </div>
 
-      {/* Keyframes for the main image swap animation.
-          Scoped globally because <style> tags must live at the top level of a component tree. */}
       <style>{`
-        @keyframes galleryFadeIn {
-          from { opacity: 0; }
-          to   { opacity: 1; }
+        @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+        /* Stack cards on mobile */
+        @media (max-width: 640px) {
+          #projects [style*="gridTemplateColumns"] {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
     </section>
