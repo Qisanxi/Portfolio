@@ -8,6 +8,14 @@ const GROUND_2 = '#1C1710'
 
 const timeline = [
   {
+    year: '2026', period: 'Aug – Present',
+    title: 'Ongoing Hackathon Journey — MLH, Shipathon & GIBC',
+    subtitle: 'Hackathon Participant',
+    description: 'Actively participating in MLH Hackathons, Shipathon & GIBC — building AI agents, models and web tools from scratch.',
+    color: '#8754e0',
+  },
+
+  {
     year: '2026', period: 'Jul – Aug',
     title: 'AMD AI DevMaster Hackathon',
     subtitle: 'Hackathon Participant',
@@ -22,7 +30,7 @@ const timeline = [
     color: ACCENT,
   },
   {
-    year: '2026', period: 'May – Jul',
+    year: '2026', period: 'June – Jul',
     title: 'Mobile App Development',
     subtitle: 'Remote Internship — Excelerate',
     description: 'Architected a comprehensive state management system for a Flutter mobile app.',
@@ -35,13 +43,6 @@ const timeline = [
     description: 'Completed a 10-week global learning program on communication, structured problem-solving, and leadership.',
     color: '#4B9FE8',
   },
-]
-
-const stats = [
-  { value: '5+', label: 'Projects shipped' },
-  { value: '1',  label: 'Hackathon won' },
-  { value: '2',  label: 'Internships' },
-  { value: '4',  label: 'Certifications' },
 ]
 
 export default function About() {
@@ -63,38 +64,28 @@ export default function About() {
           </h2>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px' }}>
+        {/* Two columns — both start at the same vertical position via alignItems: 'start' */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '48px', alignItems: 'start' }}>
 
-          {/* Left — bio + stats */}
+          {/* Left — bio + stats (restored to balance the right column height) */}
           <div ref={bioRef} className="reveal">
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '16px', fontSize: '14px' }}>
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '14px', fontSize: '14px' }}>
+            
               I am a self-driven developer with a strong foundation in Python backend and
-              AI-integrated full-stack development. I got here through hackathons,
-              open-source contributions, and shipping end-to-end products — not tutorials.
+              AI-integrated full-stack development. My Journey has been shaped through 
+              hackathons,open-source contributions, and shipping end-to-end products — not tutorials.
             </p>
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '16px', fontSize: '14px' }}>
-              I build things that automate the boring parts of work — whether that is
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '14px', fontSize: '14px' }}>
+              I build solution that automate the boring parts of work — whether that is
               collecting school fees with a WhatsApp bot, or publishing developer content
               to LinkedIn without touching a keyboard after setup.
             </p>
-            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '28px', fontSize: '14px' }}>
-              Currently pursuing a BCA at Patliputra University and deepening expertise
-              in AI agents, RAG pipelines, and AWS App Runner deployments.
+            <p style={{ color: MUTED, lineHeight: '1.8', marginBottom: '24px', fontSize: '14px' }}>
+              Currently pursuing Bachelors in Computer Application at Patliputra University Alongside, grinding hackathons,
+              mastering DSA, and exploring system design — because I believe success comes from turning ideas into
+              scalable systems under real‑world pressure.
+              Motto: Keep building, keep competing, keep scaling.
             </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-              {stats.map(({ value, label }) => (
-                <div key={label} style={{
-                  padding: '14px 16px',
-                  borderRadius: '10px',
-                  background: GROUND_2,
-                  border: '1px solid rgba(196,145,63,0.1)',
-                }}>
-                  <div style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', fontWeight: 600, color: TEXT, marginBottom: '3px' }}>{value}</div>
-                  <div style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>{label}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
           {/* Right — timeline */}

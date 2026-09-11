@@ -1,5 +1,5 @@
 import { useScrollAnimation } from '../../hooks/useScrollAnimation'
-import { Award, ExternalLink } from 'lucide-react'
+import { ArrowUpRight } from 'lucide-react'
 
 const ACCENT = '#C4913F'
 const TEXT = '#EDE4CF'
@@ -41,7 +41,7 @@ const certs = [
     date: '2026',
     color: '#C4913F',
     emoji: '🐧',
-    desc: 'Certified completion of AI prompt engineering integration into backend workflows.',
+    desc: 'Mastered the OpenAPI Specification (OAS) — the industry standard for defining, documenting, and designing RESTful APIs.',
     link: 'https://www.credly.com/badges/4b93492c-332c-403e-898b-761a4290260c/linked_in_profile',
   },
   {
@@ -93,16 +93,34 @@ function CertCard({ cert }) {
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
-          <h3 style={{ color: TEXT, fontSize: '13px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.4', margin: 0 }}>
+        {/* Title row — Verify button pinned to top-right (replaces old ExternalLink icon) */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px', marginBottom: '4px' }}>
+          <h3 style={{ color: TEXT, fontSize: '13px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.4', margin: 0, flex: 1, minWidth: 0 }}>
             {cert.name}
           </h3>
           {cert.link && (
-            <a href={cert.link} target="_blank" rel="noreferrer" style={{ color: FAINT, flexShrink: 0, marginTop: '1px', transition: 'color 0.15s', textDecoration: 'none' }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = ACCENT }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
+            <a
+              href={cert.link}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                fontSize: '11px', fontFamily: 'var(--font-mono)',
+                color: ACCENT,
+                background: 'rgba(196,145,63,0.06)',
+                border: '1px solid rgba(196,145,63,0.25)',
+                borderRadius: '6px',
+                padding: '4px 10px',
+                textDecoration: 'none',
+                transition: 'all 0.18s',
+                flexShrink: 0,
+                whiteSpace: 'nowrap',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.12)'; e.currentTarget.style.borderColor = ACCENT }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(196,145,63,0.06)'; e.currentTarget.style.borderColor = 'rgba(196,145,63,0.25)' }}
             >
-              <ExternalLink size={12} />
+              Verify
+              <ArrowUpRight size={11} />
             </a>
           )}
         </div>

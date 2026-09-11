@@ -47,12 +47,14 @@ EXPERIENCE:
 - Prompt Engineering Research & Integration — Remote Internship, Excelerate (2026)
 - Mobile App Development — Remote Internship, Excelerate (2026)
 - McKinsey Forward Program Graduate — 10-week leadership & communication program
+- Participated in various hackathons like MLH , Google All Thing Agentic , AMD AI Devmaster , GIBC etc
 
 CERTIFICATIONS:
 - OpenAPI Fundamentals — Linux Foundation (2026)
 - Docker Essentials — IBM (2026)
 - Oracle Certified Foundations Associate — Agentic AI (2026)
 - Authentication & Authorization for Web/API — Linux Foundation (2026)
+- Python Essentioal -CISC0 (2026)
 
 CONTACT:
 - Email: sandeepkumarultra615615@gmail.com

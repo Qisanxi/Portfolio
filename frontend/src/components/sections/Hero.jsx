@@ -87,9 +87,9 @@ export default function Hero() {
             </div>
 
             <p style={{ color: MUTED, fontSize: 'clamp(14px, 2.5vw, 16px)', maxWidth: '520px', marginBottom: '36px', lineHeight: '1.75' }}>
-              Self-driven developer with a strong foundation in Python backend and
-              AI-integrated full-stack development. I build tools that solve real problems —
-              from autonomous content agents to AI-powered fee collection platforms.
+              Growth is the equation where iteration and grinding are the variables — every cycle of effort compounds into mastery,
+              every challenge becomes fuel for transformation. This Portfolio is depiction of my growth while Projects and Certifications
+              in it represent the iteration and grinding .
             </p>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '36px' }}>
