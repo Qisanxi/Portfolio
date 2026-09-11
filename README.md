@@ -18,7 +18,7 @@ Personal portfolio website with an AI-powered chatbot built to showcase projects
 | AI | Gemini 2.5 Flash API |
 | Rate Limiting | Slowapi |
 | DevOps | Docker, docker-compose |
-| Deploy | Vercel (frontend), Render (backend), Supabase (DB) |
+| Deploy | Vercel (frontend), AWS Lambda + API Gateway (backend), Supabase (DB) |
 
 ---
 
@@ -45,7 +45,7 @@ graph TB
         CW["ChatWidget\nOnboarding → Chat"]:::ui
     end
 
-    subgraph Render["🟣 Render  —  FastAPI Backend"]
+    subgraph Lambda["⚡ AWS Lambda + API Gateway  —  FastAPI (Mangum)"]
         direction TB
         CORS["CORS Middleware\nFRONTEND_URL whitelist"]:::middleware
         RL["Slowapi Rate Limiter"]:::middleware
@@ -91,7 +91,7 @@ graph TB
 sequenceDiagram
     actor V as Visitor
     participant FE as React Frontend<br/>(Vercel)
-    participant API as FastAPI Backend<br/>(Render)
+    participant API as FastAPI Backend<br/>(AWS Lambda)
     participant AI as Gemini 2.5 Flash<br/>(Google AI)
     participant DB as PostgreSQL<br/>(Supabase)
 
@@ -302,61 +302,145 @@ docker-compose up --build
 | Service | Platform | Notes |
 |---|---|---|
 | Frontend | Vercel | Set `VITE_API_URL` in Vercel dashboard |
-| Backend | Render | Connect GitHub repo, set env vars in Render dashboard. Free tier spins down after 15 min — use Starter ($7/mo) or UptimeRobot pings to keep warm |
+| Backend | AWS Lambda + API Gateway | `sam build && sam deploy` from repo root. 1M requests/month free forever. Cold starts ~1–2 s (vs Render free tier 30–50 s). No spindown, no pings needed. |
 | Database | Supabase | Copy the connection string into `DATABASE_URL` |
 
-### Deploy backend to Render
+### Deploy backend to AWS Lambda
 
-Render is the simplest way to deploy a FastAPI backend. No Docker knowledge needed — it detects Python automatically.
+AWS Lambda is the right choice here: **1 million requests per month free forever**, cold starts of ~1–2 seconds (not 30–50 seconds), and no pinging utilities needed. The only code addition is one package (`mangum`) and two lines in a new file.
 
-#### Step 1 — Create the service
+#### Step 1 — Code changes (do these first)
 
-1. Go to [render.com](https://render.com) and sign in with GitHub
-2. Click **New → Web Service**
-3. Connect the `Qisanxi/Portfolio` repository
-4. Set **Root Directory** to `backend`
-5. Render auto-detects Python — confirm these settings:
-
-| Setting | Value |
-|---|---|
-| **Runtime** | Python 3 |
-| **Build Command** | `pip install -r requirements.txt` |
-| **Start Command** | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` |
-| **Instance Type** | Free (or Starter $7/mo for always-on) |
-
-> `--proxy-headers` is required — Render sits behind a load balancer and without it the rate limiter sees the proxy IP, not the real visitor IP.
-
-#### Step 2 — Set environment variables
-
-In the Render dashboard → your service → **Environment**, add:
-
+**`backend/requirements.txt`** — add one line:
 ```
-DATABASE_URL      postgresql+asyncpg://postgres.[ref]:[password]@[host]:6543/postgres
-GEMINI_API_KEY    your_key_from_aistudio.google.com
-FRONTEND_URL      https://your-portfolio.vercel.app
-DEBUG             False
+mangum==0.17.0
 ```
 
-#### Step 3 — Get your Render URL
+**`backend/lambda_handler.py`** — create this file:
+```python
+from mangum import Mangum
+from app.main import app
 
-After the first deploy succeeds, Render gives you a URL like:
+# Mangum wraps FastAPI for Lambda's event format
+handler = Mangum(app, lifespan="auto")
 ```
-https://portfolio-backend-xxxx.onrender.com
+
+**`backend/app/db/session.py`** — add `NullPool` (Lambda can't hold persistent DB connections):
+```python
+from sqlalchemy.pool import NullPool
+
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=settings.DEBUG,
+    poolclass=NullPool,   # ← add this line
+)
+```
+
+**`template.yaml`** — create at the repo root:
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Portfolio Backend — FastAPI on AWS Lambda
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.11
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+  GeminiApiKey:
+    Type: String
+    NoEcho: true
+  FrontendUrl:
+    Type: String
+    Default: "https://your-portfolio.vercel.app"
+
+Resources:
+  PortfolioBackend:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: backend/
+      Handler: lambda_handler.handler
+      Environment:
+        Variables:
+          DATABASE_URL: !Ref DatabaseUrl
+          GEMINI_API_KEY: !Ref GeminiApiKey
+          FRONTEND_URL: !Ref FrontendUrl
+          DEBUG: "False"
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+```
+
+#### Step 2 — AWS one-time setup
+
+1. Create an [AWS account](https://aws.amazon.com) (free tier)
+2. Go to **IAM → Users → Create User** → attach these policies:
+   - `AWSLambda_FullAccess`
+   - `AmazonAPIGatewayAdministrator`
+   - `AWSCloudFormationFullAccess`
+   - `AmazonS3FullAccess`
+   - `IAMFullAccess`
+3. **Security credentials → Create access key** → save the ID and secret
+
+#### Step 3 — Install CLI tools
+
+```bash
+# AWS CLI — macOS
+brew install awscli
+# Windows: download installer from aws.amazon.com/cli
+
+# Configure with your credentials
+aws configure
+# Prompts for: Access Key ID, Secret Access Key, Region, Output format
+# Use ap-south-1 (Mumbai) for lowest latency from India
+
+# AWS SAM CLI — macOS
+brew install aws-sam-cli
+# Windows: download from aws.amazon.com/serverless/sam
+```
+
+#### Step 4 — Build and deploy
+
+```bash
+# From the repo root (where template.yaml lives)
+sam build
+
+sam deploy --guided   --stack-name portfolio-backend   --capabilities CAPABILITY_IAM   --parameter-overrides     DatabaseUrl="postgresql+asyncpg://postgres.[ref]:[pass]@[host]:6543/postgres"     GeminiApiKey="your_gemini_key"     FrontendUrl="https://your-portfolio.vercel.app"
+```
+
+SAM asks a few questions on first run and saves the answers to `samconfig.toml`. Every future deploy is just:
+
+```bash
+sam build && sam deploy
+```
+
+After deploy, SAM prints:
+```
+Outputs:
+ApiUrl = https://xxxxxxxxxx.execute-api.ap-south-1.amazonaws.com
 ```
 
 Set that as `VITE_API_URL` in your **Vercel dashboard → Settings → Environment Variables**, then trigger a redeploy of the frontend.
 
 #### Free tier cold starts — fix with UptimeRobot
 
-On the free tier Render spins the service down after 15 minutes of inactivity. The first request after sleep takes 30–50 seconds — bad for a recruiter opening your chat widget.
 
-**Fix (free):** Go to [uptimerobot.com](https://uptimerobot.com), create a free account, and add an HTTP monitor:
-- URL: `https://your-backend.onrender.com/`
-- Interval: **every 5 minutes**
-
-This keeps your backend warm during the day at zero cost.
-
-**Fix (permanent):** Upgrade the Render service to **Starter ($7/mo)** — it never spins down.
 
 ## Projects Featured
 
@@ -374,7 +458,8 @@ This keeps your backend warm during the day at zero cost.
 - [ ] **Recruiter email capture** — Collect email from recruiter visitors during onboarding and send an automated follow-up with project links. Needs Resend API integration.
 - [ ] **Resume PDF** — Add `resume.pdf` to `frontend/public/` so the Download CV button works.
 - [x] **Google Fonts** — Add Space Grotesk for headings and JetBrains Mono for code elements.
-- [ ] **AWS Lambda** — Migrate backend to AWS Lambda + API Gateway for true serverless scaling. Requires `mangum` adapter to wrap FastAPI for Lambda's event format. Good next step once comfortable with AWS IAM and VPC basics.
+- [x] **AWS Lambda** — Backend deployed on Lambda + API Gateway via SAM. Zero spindown, 1M free requests/month, ~1–2 s cold starts.
+- [ ] **CI/CD pipeline** — GitHub Actions: `sam build && sam deploy` on push to main so backend auto-deploys with the frontend.
 - [ ] **Analytics** — Add Umami or Plausible for privacy-friendly visitor tracking.
 - [ ] **Blog section** — Minimal writing section for learnings on AI engineering and FastAPI.
 - [ ] **Alembic migrations** — Replace `create_all` startup with proper Alembic migration files.
@@ -390,4 +475,5 @@ This keeps your backend warm during the day at zero cost.
 - 💼 LinkedIn: [linkedin.com/in/sandeep-qisanxi](https://www.linkedin.com/in/sandeep-qisanxi)
 - 🐙 GitHub: [github.com/Qisanxi](https://github.com/Qisanxi)
 - 📧 Email: sandeepkumarultra615615@gmail.com
+
 
