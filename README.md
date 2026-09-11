@@ -18,7 +18,7 @@ Personal portfolio website with an AI-powered chatbot built to showcase projects
 | AI | Gemini 2.5 Flash API |
 | Rate Limiting | Slowapi |
 | DevOps | Docker, docker-compose |
-| Deploy | Vercel (frontend), AWS App Runner (backend), Supabase (DB) |
+| Deploy | Vercel (frontend), Render (backend), Supabase (DB) |
 
 ---
 
@@ -45,7 +45,7 @@ graph TB
         CW["ChatWidget\nOnboarding → Chat"]:::ui
     end
 
-    subgraph AppRunner["☁️ AWS App Runner  —  FastAPI Backend"]
+    subgraph Render["🟣 Render  —  FastAPI Backend"]
         direction TB
         CORS["CORS Middleware\nFRONTEND_URL whitelist"]:::middleware
         RL["Slowapi Rate Limiter"]:::middleware
@@ -91,7 +91,7 @@ graph TB
 sequenceDiagram
     actor V as Visitor
     participant FE as React Frontend<br/>(Vercel)
-    participant API as FastAPI Backend<br/>(AWS App Runner)
+    participant API as FastAPI Backend<br/>(Render)
     participant AI as Gemini 2.5 Flash<br/>(Google AI)
     participant DB as PostgreSQL<br/>(Supabase)
 
@@ -302,66 +302,61 @@ docker-compose up --build
 | Service | Platform | Notes |
 |---|---|---|
 | Frontend | Vercel | Set `VITE_API_URL` in Vercel dashboard |
-| Backend | AWS App Runner | Deploy container from ECR, set env vars in App Runner console |
+| Backend | Render | Connect GitHub repo, set env vars in Render dashboard. Free tier spins down after 15 min — use Starter ($7/mo) or UptimeRobot pings to keep warm |
 | Database | Supabase | Copy the connection string into `DATABASE_URL` |
 
-### Deploy backend to AWS App Runner
+### Deploy backend to Render
 
-AWS App Runner is the closest equivalent to Google Cloud Run on AWS — it deploys a container image from ECR, manages the load balancer, autoscaling, and TLS for you. You only pay for the compute while requests are in flight.
+Render is the simplest way to deploy a FastAPI backend. No Docker knowledge needed — it detects Python automatically.
 
-```bash
-# One-time setup
-aws configure
-aws ecr create-repository --repository-name portfolio-backend --region ap-south-1
+#### Step 1 — Create the service
 
-# Build and push the image to ECR (run from repo root)
-aws ecr get-login-password --region ap-south-1 \
-  | docker login --username AWS --password-stdin \
-  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com
+1. Go to [render.com](https://render.com) and sign in with GitHub
+2. Click **New → Web Service**
+3. Connect the `Qisanxi/Portfolio` repository
+4. Set **Root Directory** to `backend`
+5. Render auto-detects Python — confirm these settings:
 
-docker build -t portfolio-backend ./backend
-docker tag portfolio-backend:latest \
-  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest
-docker push \
-  $(aws sts get-caller-identity --query Account --output text).dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest
+| Setting | Value |
+|---|---|
+| **Runtime** | Python 3 |
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"` |
+| **Instance Type** | Free (or Starter $7/mo for always-on) |
 
-# Create the App Runner service
-AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-aws apprunner create-service \
-  --service-name portfolio-backend \
-  --region ap-south-1 \
-  --source-configuration '{
-    "ImageRepository": {
-      "ImageIdentifier": "'$AWS_ACCOUNT_ID'.dkr.ecr.ap-south-1.amazonaws.com/portfolio-backend:latest",
-      "ImageRepositoryType": "ECR",
-      "ImageConfiguration": {
-        "Port": "8000",
-        "RuntimeEnvironmentVariables": {
-          "DATABASE_URL": "postgresql+asyncpg://...",
-          "GEMINI_API_KEY": "...",
-          "FRONTEND_URL": "https://sandeep-kumar.vercel.app",
-          "DEBUG": "False"
-        }
-      }
-    },
-    "AutoDeploymentsEnabled": true,
-    "AuthenticationConfiguration": {
-      "AccessRoleArn": "arn:aws:iam::'$AWS_ACCOUNT_ID':role/AppRunnerECRAccessRole"
-    }
-  }' \
-  --instance-configuration Cpu=0.25,Memory=0.5
+> `--proxy-headers` is required — Render sits behind a load balancer and without it the rate limiter sees the proxy IP, not the real visitor IP.
+
+#### Step 2 — Set environment variables
+
+In the Render dashboard → your service → **Environment**, add:
+
+```
+DATABASE_URL      postgresql+asyncpg://postgres.[ref]:[password]@[host]:6543/postgres
+GEMINI_API_KEY    your_key_from_aistudio.google.com
+FRONTEND_URL      https://your-portfolio.vercel.app
+DEBUG             False
 ```
 
-App Runner gives you a URL like `https://xxxxxxxx.ap-south-1.awsapprunner.com`.
-Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
+#### Step 3 — Get your Render URL
 
-**Notes:**
-- `ap-south-1` (Mumbai) is the lowest-latency region for Indian visitors; switch to your closest region if your audience is elsewhere.
-- `--instance-configuration Cpu=0.25,Memory=0.5` is the smallest valid size — adequate for a low-traffic portfolio (roughly $3–5/month on the free-tier-equivalent usage).
-- App Runner injects `X-Forwarded-For` automatically from its own trusted load balancer — no special uvicorn flags needed for the rate limiter to see real visitor IPs.
-- `AutoDeploymentsEnabled: true` redeploys automatically whenever you push a new `:latest` tag to ECR.
+After the first deploy succeeds, Render gives you a URL like:
+```
+https://portfolio-backend-xxxx.onrender.com
+```
 
----
+Set that as `VITE_API_URL` in your **Vercel dashboard → Settings → Environment Variables**, then trigger a redeploy of the frontend.
+
+#### Free tier cold starts — fix with UptimeRobot
+
+On the free tier Render spins the service down after 15 minutes of inactivity. The first request after sleep takes 30–50 seconds — bad for a recruiter opening your chat widget.
+
+**Fix (free):** Go to [uptimerobot.com](https://uptimerobot.com), create a free account, and add an HTTP monitor:
+- URL: `https://your-backend.onrender.com/`
+- Interval: **every 5 minutes**
+
+This keeps your backend warm during the day at zero cost.
+
+**Fix (permanent):** Upgrade the Render service to **Starter ($7/mo)** — it never spins down.
 
 ## Projects Featured
 
@@ -379,7 +374,7 @@ Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
 - [ ] **Recruiter email capture** — Collect email from recruiter visitors during onboarding and send an automated follow-up with project links. Needs Resend API integration.
 - [ ] **Resume PDF** — Add `resume.pdf` to `frontend/public/` so the Download CV button works.
 - [x] **Google Fonts** — Add Space Grotesk for headings and JetBrains Mono for code elements.
-- [ ] **AWS IaC** — Replace manual `aws` CLI deploy commands with a Terraform or AWS SAM template so the App Runner service is reproducible.
+- [ ] **AWS Lambda** — Migrate backend to AWS Lambda + API Gateway for true serverless scaling. Requires `mangum` adapter to wrap FastAPI for Lambda's event format. Good next step once comfortable with AWS IAM and VPC basics.
 - [ ] **Analytics** — Add Umami or Plausible for privacy-friendly visitor tracking.
 - [ ] **Blog section** — Minimal writing section for learnings on AI engineering and FastAPI.
 - [ ] **Alembic migrations** — Replace `create_all` startup with proper Alembic migration files.
@@ -395,3 +390,4 @@ Set that as `VITE_API_URL` in your Vercel dashboard and redeploy the frontend.
 - 💼 LinkedIn: [linkedin.com/in/sandeep-qisanxi](https://www.linkedin.com/in/sandeep-qisanxi)
 - 🐙 GitHub: [github.com/Qisanxi](https://github.com/Qisanxi)
 - 📧 Email: sandeepkumarultra615615@gmail.com
+
