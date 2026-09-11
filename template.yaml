@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Portfolio Backend — FastAPI running on AWS Lambda + API Gateway (HTTP API).
+  Deploy with: sam build && sam deploy --guided
+
+# ── Parameters ─────────────────────────────────────────────────────────────────
+# Passed in via --parameter-overrides on first deploy; saved to samconfig.toml
+# for subsequent runs.
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: >
+      Supabase PostgreSQL connection string.
+      Use the POOLED connection (port 6543, Transaction mode) — not port 5432.
+      Format: postgresql+asyncpg://postgres.[ref]:[password]@[host]:6543/postgres
+
+  GeminiApiKey:
+    Type: String
+    Description: Google Gemini API key from aistudio.google.com
+    NoEcho: true   # never printed to logs or console output
+
+  FrontendUrl:
+    Type: String
+    Description: Vercel frontend URL — used for the CORS allow-origin header
+    Default: "https://your-portfolio.vercel.app"
+
+# ── Globals ────────────────────────────────────────────────────────────────────
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30          # Gemini API calls can take a few seconds — give headroom
+    MemorySize: 512      # 512 MB is the sweet spot: fast enough, cheap enough
+    Environment:
+      Variables:
+        DATABASE_URL:   !Ref DatabaseUrl
+        GEMINI_API_KEY: !Ref GeminiApiKey
+        FRONTEND_URL:   !Ref FrontendUrl
+        DEBUG:          "False"
+
+# ── Resources ──────────────────────────────────────────────────────────────────
+Resources:
+  PortfolioBackend:
+    Type: AWS::Serverless::Function
+    Properties:
+      # CodeUri points to the backend/ directory.
+      # SAM zips its contents and uploads to S3 automatically.
+      CodeUri: backend/
+      Handler: lambda_handler.handler   # file: lambda_handler.py, object: handler
+      Events:
+        # Root path  — handles GET / (health check)
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+        # Catch-all — handles /api/chat, /api/contact, and any future routes
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+# ── Outputs ────────────────────────────────────────────────────────────────────
+Outputs:
+  ApiUrl:
+    Description: >
+      API Gateway endpoint — set this as VITE_API_URL in your Vercel
+      environment variables, then redeploy the frontend.
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
