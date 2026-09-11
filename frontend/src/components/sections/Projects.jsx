@@ -70,7 +70,10 @@ const projects = [
 ]
 
 // ─── MacOS Laptop Frame ───────────────────────────────────────────────────────
-function LaptopFrame({ src, alt, compact }) {
+// The frame itself (bezel, traffic lights, hinge) is rendered STATIC — it never
+// re-mounts or fades during image swaps. Only the <img> inside the screen
+// area fades, so the device looks like a real laptop changing browser tabs.
+function LaptopFrame({ src, alt, compact, visible }) {
   return (
     <div style={{ width: '100%', position: 'relative', userSelect: 'none' }}>
       {/* Screen body */}
@@ -88,18 +91,26 @@ function LaptopFrame({ src, alt, compact }) {
           <div style={{ width: compact ? 6 : 7, height: compact ? 6 : 7, borderRadius: '50%', background: '#FFBD2E', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.3)' }} />
           <div style={{ width: compact ? 6 : 7, height: compact ? 6 : 7, borderRadius: '50%', background: '#28C840', boxShadow: '0 0 0 0.5px rgba(0,0,0,0.3)' }} />
         </div>
-        {/* Browser URL bar hint */}
+        {/* Browser URL bar hint — screen content lives here, only the img fades */}
         <div style={{
           background: '#0D0C0A',
           borderRadius: compact ? 3 : 4,
           overflow: 'hidden',
           aspectRatio: '16/9.5',
           border: '1px solid #2A2720',
+          position: 'relative',
         }}>
           <img
             src={src}
             alt={alt}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', display: 'block' }}
+            loading="lazy"
+            style={{
+              width: '100%', height: '100%',
+              objectFit: 'cover', objectPosition: 'top',
+              display: 'block',
+              opacity: visible ? 1 : 0,
+              transition: 'opacity 0.28s ease',
+            }}
           />
         </div>
       </div>
@@ -187,17 +198,15 @@ function DeviceDisplay({ project, compact }) {
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      {/* Laptop — takes most of the width; shrinks to leave room for phone */}
+      {/* Laptop — frame stays static, only the img inside fades via the visible prop */}
       <div
         style={{
           flex: 1,
           maxWidth: project.hasPhone ? '78%' : '100%',
-          opacity: visible ? 1 : 0,
-          transition: 'opacity 0.28s ease',
           filter: 'drop-shadow(0 10px 28px rgba(0,0,0,0.6))',
         }}
       >
-        <LaptopFrame src={urls[idx]} alt={project.title} compact={compact} />
+        <LaptopFrame src={urls[idx]} alt={project.title} compact={compact} visible={visible} />
       </div>
 
       {/* Phone overlay — only for projects that have one */}
