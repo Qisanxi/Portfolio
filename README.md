@@ -402,11 +402,8 @@ No `cron-job.org` or UptimeRobot pinger needed — the frontend itself is the pi
 
 **Planned:**
 - [ ] **Achievement notifications** — Admin endpoint (auth-protected) that sends a templated email to all `subscribed_visitors` via Resend when a new project/cert/milestone is added. Triggered manually via a CLI script or admin UI.
-- [ ] **Resume PDF** — Add `resume.pdf` to `frontend/public/` so the Download CV button works.
 - [ ] **Analytics** — Privacy-friendly visitor tracking (Plausible or Vercel Analytics). Deferred — the `subscribed_visitors` table gives the actual signal that matters (recruiters who self-identified), so a hit counter is unnecessary.
-- [ ] **Blog section** — Minimal writing section for learnings on AI engineering and FastAPI.
 - [ ] **Alembic migrations** — Replace `create_all` startup with proper Alembic migration files.
-- [ ] **CD pipeline** — Auto-deploy frontend to Vercel + backend to Render on push to `main` (after CI passes).
 
 ---
 
