@@ -32,21 +32,38 @@ const markdownComponents = {
   p: ({ children }) => <p style={{ margin: '0 0 6px 0' }}>{children}</p>,
 }
 
-export default function ChatWidget() {
+export default function ChatWidget({ warmStatus }) {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState('welcome')
   const [selected, setSelected] = useState('')
   const [input, setInput] = useState('')
   const [peeked, setPeeked] = useState(false)
+  // Optional name/email capture — POSTed to /api/visitors on thankyou submit
+  const [visitorName, setVisitorName] = useState('')
+  const [visitorEmail, setVisitorEmail] = useState('')
+  const [visitorSaving, setVisitorSaving] = useState(false)
   const { messages, loading, sendMessage, clearMessages, initializeChat } = useChat()
   const bottomRef = useRef(null)
 
-  // show a peek tooltip after 4s to nudge visitors
+  // Auto-open chat once backend is warm, but only if the visitor hasn't
+  // already dismissed it this session. This is the "warm nudge" — the
+  // backend is now ready, so the chat will respond instantly.
+  useEffect(() => {
+    if (warmStatus !== 'warm') return
+    if (sessionStorage.getItem('portfolio:chatAutoOpened') === '1') return
+    sessionStorage.setItem('portfolio:chatAutoOpened', '1')
+    // Small delay so the WarmBanner appears first, then the chat opens
+    const t = setTimeout(() => setOpen(true), 1400)
+    return () => clearTimeout(t)
+  }, [warmStatus])
+
+  // show a peek tooltip after 4s to nudge visitors (only if backend cold)
   useEffect(() => {
     if (open) return
+    if (warmStatus === 'warm') return  // warm path uses auto-open instead
     const t = setTimeout(() => setPeeked(true), 4000)
     return () => clearTimeout(t)
-  }, [open])
+  }, [open, warmStatus])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -55,7 +72,32 @@ export default function ChatWidget() {
   const handleIdentitySubmit = () => {
     if (!selected) return
     initializeChat(selected)
-    setStep('thankyou')
+    // Move to the optional name/email step (not directly to thankyou)
+    setStep('identify')
+  }
+
+  // Fire-and-forget POST to /api/visitors. If it fails (visitor offline,
+  // backend cold, etc.), we still proceed to the thankyou step — the
+  // visitor experience must never be blocked by analytics.
+  const handleIdentifySubmit = async (skipEmail = false) => {
+    if (!skipEmail && visitorSaving) return
+    setVisitorSaving(true)
+    try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/visitors`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          identity: selected,
+          name: visitorName.trim() || undefined,
+          email: visitorEmail.trim() || undefined,
+        }),
+      })
+    } catch {
+      // Silent fail — visitor experience is more important than analytics
+    } finally {
+      setVisitorSaving(false)
+      setStep('thankyou')
+    }
   }
 
   const handleStartChat = () => setStep('chat')
@@ -301,11 +343,103 @@ export default function ChatWidget() {
             </div>
           )}
 
+          {step === 'identify' && (
+            <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', overflowY: 'auto' }}>
+              <div>
+                <div style={{ color: TEXT, fontSize: '14px', fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: '6px' }}>
+                  Before you go —
+                </div>
+                <div style={{ color: MUTED, fontSize: '12px', lineHeight: '1.6' }}>
+                  Want Sandeep to personally notify you when he ships something new? Leave your name and email below — totally optional.
+                </div>
+              </div>
+
+              {/* Name */}
+              <div>
+                <label style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)', marginBottom: '5px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Your name (optional)</label>
+                <input
+                  type="text"
+                  value={visitorName}
+                  onChange={(e) => setVisitorName(e.target.value)}
+                  placeholder="Jane Doe"
+                  style={{
+                    width: '100%',
+                    background: GROUND_2,
+                    border: '1px solid rgba(196,145,63,0.12)',
+                    borderRadius: '8px',
+                    padding: '9px 12px',
+                    color: TEXT,
+                    fontSize: '13px',
+                    outline: 'none',
+                    fontFamily: 'var(--font-sans)',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.5)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)' }}
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <label style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)', marginBottom: '5px', display: 'block', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Email (optional)</label>
+                <input
+                  type="email"
+                  value={visitorEmail}
+                  onChange={(e) => setVisitorEmail(e.target.value)}
+                  placeholder="jane@company.com"
+                  style={{
+                    width: '100%',
+                    background: GROUND_2,
+                    border: '1px solid rgba(196,145,63,0.12)',
+                    borderRadius: '8px',
+                    padding: '9px 12px',
+                    color: TEXT,
+                    fontSize: '13px',
+                    outline: 'none',
+                    fontFamily: 'var(--font-sans)',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 0.2s',
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.5)' }}
+                  onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(196,145,63,0.12)' }}
+                />
+              </div>
+
+              <button
+                onClick={() => handleIdentifySubmit(false)}
+                disabled={visitorSaving}
+                style={{
+                  width: '100%',
+                  background: ACCENT,
+                  border: 'none', borderRadius: '10px',
+                  padding: '11px', color: '#fff', fontSize: '13px', fontWeight: 500,
+                  cursor: visitorSaving ? 'not-allowed' : 'pointer',
+                  opacity: visitorSaving ? 0.6 : 1,
+                  transition: 'all 0.2s',
+                  fontFamily: 'var(--font-sans)',
+                }}
+              >
+                {visitorSaving ? 'Saving…' : (visitorEmail.trim() ? 'Notify me of new work →' : 'Continue →')}
+              </button>
+
+              <button
+                onClick={() => handleIdentifySubmit(true)}
+                disabled={visitorSaving}
+                style={{ background: 'none', border: 'none', color: FAINT, fontSize: '11px', cursor: 'pointer', fontFamily: 'var(--font-mono)', textAlign: 'center' }}
+              >
+                Skip — don't notify me
+              </button>
+            </div>
+          )}
+
           {step === 'thankyou' && (
             <div style={{ padding: '28px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', textAlign: 'center' }}>
               <div style={{ fontSize: '44px' }}>{identityOptions.find((o) => o.key === selected)?.emoji}</div>
               <div>
-                <div style={{ color: TEXT, fontSize: '15px', fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: '8px' }}>Thank you!</div>
+                <div style={{ color: TEXT, fontSize: '15px', fontWeight: 600, fontFamily: 'var(--font-serif)', marginBottom: '8px' }}>
+                  {visitorName.trim() ? `Welcome, ${visitorName.trim()}!` : 'Thank you!'}
+                </div>
                 <div style={{ color: MUTED, fontSize: '13px', lineHeight: '1.7' }}>{thankyouMessages[selected]}</div>
               </div>
               <div style={{

@@ -5,7 +5,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.core.config import settings
 from app.core.ratelimit import limiter
-from app.api.routes import chat, contact
+from app.api.routes import chat, contact, health, visitors
 from app.db.session import engine, Base
 from app.db import models
 
@@ -34,8 +34,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(health.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(contact.router, prefix="/api")
+app.include_router(visitors.router, prefix="/api")
 
 @app.get("/")
 async def root():
