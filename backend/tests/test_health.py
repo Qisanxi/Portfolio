@@ -16,6 +16,19 @@ async def test_health_returns_ok(client):
 
 
 @pytest.mark.asyncio
+async def test_health_root_alias(client):
+    """GET /health (no /api prefix) should also return 200.
+
+    Render's default health check probes /health, not /api/health. We
+    expose the same handler at the root level so Render's deploy doesn't
+    show as 'unhealthy' even though the app is running fine.
+    """
+    res = await client.get('/health')
+    assert res.status_code == 200
+    assert res.json()['status'] == 'ok'
+
+
+@pytest.mark.asyncio
 async def test_health_not_rate_limited(client):
     """Hitting /api/health 20 times in a row should all return 200.
 
