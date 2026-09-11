@@ -18,4 +18,13 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  // Test files run in jsdom (vitest) — they need access to window, document,
+  // global, etc. as Node globals. The vitest config injects these via the
+  // jsdom environment, but ESLint doesn't know about them.
+  {
+    files: ['**/*.{test,spec}.{js,jsx}', 'src/test/**'],
+    languageOptions: {
+      globals: { ...globals.browser, ...globals.node, ...globals.jest },
+    },
+  },
 ])

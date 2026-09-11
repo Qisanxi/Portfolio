@@ -1,5 +1,7 @@
 # Sandeep Kumar — Portfolio
 
+[![CI](https://github.com/Qisanxi/Portfolio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Qisanxi/Portfolio/actions/workflows/ci.yml)
+
 Personal portfolio website with an AI-powered chatbot built to showcase projects, skills, and experience. The chatbot identifies visitors (recruiter, student, or connection) and personalizes the conversation accordingly.
 
 **🌐 Live site:** [sandeep-kumar.vercel.app](https://sandeep-kumar.vercel.app)
@@ -18,7 +20,7 @@ Personal portfolio website with an AI-powered chatbot built to showcase projects
 | AI | Gemini 2.5 Flash API |
 | Rate Limiting | Slowapi |
 | DevOps | Docker, docker-compose |
-| Deploy | Vercel (frontend), AWS Lambda + API Gateway (backend), Supabase (DB) |
+| Deploy | Vercel (frontend), Render (backend), Supabase (DB) |
 
 ---
 
@@ -45,14 +47,16 @@ graph TB
         CW["ChatWidget\nOnboarding → Chat"]:::ui
     end
 
-    subgraph Lambda["⚡ AWS Lambda + API Gateway  —  FastAPI (Mangum)"]
+    subgraph Render["🟣 Render  —  FastAPI Backend"]
         direction TB
         CORS["CORS Middleware\nFRONTEND_URL whitelist"]:::middleware
         RL["Slowapi Rate Limiter"]:::middleware
         subgraph Routes["API Routes"]
             direction LR
+            HEALTH_RT["/api/health\nGET · pre-warm ping"]:::route
             CHAT_RT["/api/chat\nPOST · 10 / 5 min"]:::route
             CONTACT_RT["/api/contact\nPOST · 3 / hr"]:::route
+            VISITORS_RT["/api/visitors\nPOST · 5 / hr"]:::route
         end
         AI_SVC["ai_service.py\nSystem prompt + history"]:::service
         CORS --> RL --> Routes
@@ -61,6 +65,7 @@ graph TB
 
     subgraph Supabase["🐘 Supabase  —  PostgreSQL"]
         DB[("contact_messages\nid · name · email\nmessage · created_at")]:::db
+        DB2[("subscribed_visitors\nidentity · name · email\nsubscribed · created_at")]:::db
     end
 
     subgraph GoogleAI["🤖 Google AI Studio"]
@@ -68,11 +73,14 @@ graph TB
     end
 
     Visitor -->|"Loads app"| Vercel
-    CW -->|"POST /api/chat\nVITE_API_URL"| AppRunner
-    CONTACT -->|"POST /api/contact\nVITE_API_URL"| AppRunner
+    CW -->|"GET /api/health (silent pre-warm)"| Render
+    CW -->|"POST /api/chat\nVITE_API_URL"| Render
+    CONTACT -->|"POST /api/contact\nVITE_API_URL"| Render
+    CW -->|"POST /api/visitors (optional email)"| Render
     AI_SVC -->|"GEMINI_API_KEY"| GoogleAI
     GoogleAI -->|"AI response"| AI_SVC
     CONTACT_RT -->|"INSERT"| Supabase
+    VISITORS_RT -->|"INSERT"| Supabase
 
     classDef ui fill:#2A2114,stroke:#D4A574,color:#E8C9A0
     classDef middleware fill:#172554,stroke:#3b82f6,color:#bfdbfe
@@ -91,15 +99,19 @@ graph TB
 sequenceDiagram
     actor V as Visitor
     participant FE as React Frontend<br/>(Vercel)
-    participant API as FastAPI Backend<br/>(AWS Lambda)
+    participant API as FastAPI Backend<br/>(Render)
     participant AI as Gemini 2.5 Flash<br/>(Google AI)
     participant DB as PostgreSQL<br/>(Supabase)
 
-    Note over V,FE: Portfolio load + onboarding
+    Note over V,FE: Portfolio load + pre-warm
     V->>FE: Opens sandeep-kumar.vercel.app
-    FE->>V: Auto-popup after 2 s — identity selector
+    FE->>API: GET /api/health (silent — wakes Render backend)
+    FE->>V: WarmBanner appears: "Assistant is ready — use the chat →"
+    FE->>V: Chat auto-opens after 1.4 s
     V->>FE: Selects Recruiter / Student / Friend
-    FE->>V: Personalized welcome message
+    V->>FE: (Optional) Enters name + email
+    FE->>API: POST /api/visitors {identity, name?, email?}
+    FE->>V: "Welcome, {name}!" personalised thank-you
 
     Note over V,AI: Chat conversation loop
     loop Each message
@@ -302,145 +314,70 @@ docker-compose up --build
 | Service | Platform | Notes |
 |---|---|---|
 | Frontend | Vercel | Set `VITE_API_URL` in Vercel dashboard |
-| Backend | AWS Lambda + API Gateway | `sam build && sam deploy` from repo root. 1M requests/month free forever. Cold starts ~1–2 s (vs Render free tier 30–50 s). No spindown, no pings needed. |
+| Backend | Render | Free Web Service. Sleeps after 15 min idle (cold start 30–50 s). Frontend pre-warms silently on page load via `/api/health`. |
 | Database | Supabase | Copy the connection string into `DATABASE_URL` |
+| CI | GitHub Actions | Tests + build on every PR. See `.github/workflows/ci.yml`. |
 
-### Deploy backend to AWS Lambda
+### Deploy backend to Render
 
-AWS Lambda is the right choice here: **1 million requests per month free forever**, cold starts of ~1–2 seconds (not 30–50 seconds), and no pinging utilities needed. The only code addition is one package (`mangum`) and two lines in a new file.
+Render's free Web Service sleeps after 15 minutes of inactivity. First request after sleep takes ~30–50 seconds to wake the container. We solve this with a **silent pre-warm** — the frontend pings `GET /api/health` on page load, so by the time the visitor clicks the chat button, the backend is already warm.
 
-#### Step 1 — Code changes (do these first)
+#### Step 1 — Push your backend to GitHub
 
-**`backend/requirements.txt`** — add one line:
+Make sure your `backend/` folder is on `main` (it already is).
+
+#### Step 2 — Create a Render Web Service
+
+1. Sign up at [render.com](https://render.com) (free tier, no credit card required)
+2. **New +** → **Web Service** → connect your GitHub repo `Qisanxi/Portfolio`
+3. Configure:
+   - **Name**: `portfolio-backend`
+   - **Region**: Singapore (closest to India with low latency)
+   - **Runtime**: Python 3
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+   - **Plan**: Free
+4. **Environment Variables** (Render dashboard → Environment tab):
+
+   | Key | Value | Where to get it |
+   |---|---|---|
+   | `DATABASE_URL` | `postgresql+asyncpg://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:6543/postgres` | Supabase → Project Settings → Database → Connection string → **Transaction mode** (port 6543, not 5432) |
+   | `GEMINI_API_KEY` | `AIza...` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+   | `FRONTEND_URL` | `https://sandeep-kumar.vercel.app` | Your Vercel URL |
+   | `DEBUG` | `False` | Always False in production |
+
+5. **Create Web Service** — Render builds and deploys. First deploy takes ~2 min.
+
+Render gives you a URL like `https://portfolio-backend-xxxx.onrender.com`.
+
+#### Step 3 — Wire up the frontend
+
+In your **Vercel dashboard → Settings → Environment Variables**, add:
+
 ```
-mangum==0.17.0
-```
-
-**`backend/lambda_handler.py`** — create this file:
-```python
-from mangum import Mangum
-from app.main import app
-
-# Mangum wraps FastAPI for Lambda's event format
-handler = Mangum(app, lifespan="auto")
-```
-
-**`backend/app/db/session.py`** — add `NullPool` (Lambda can't hold persistent DB connections):
-```python
-from sqlalchemy.pool import NullPool
-
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.DEBUG,
-    poolclass=NullPool,   # ← add this line
-)
-```
-
-**`template.yaml`** — create at the repo root:
-```yaml
-AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
-Description: Portfolio Backend — FastAPI on AWS Lambda
-
-Globals:
-  Function:
-    Timeout: 30
-    MemorySize: 512
-    Runtime: python3.11
-
-Parameters:
-  DatabaseUrl:
-    Type: String
-  GeminiApiKey:
-    Type: String
-    NoEcho: true
-  FrontendUrl:
-    Type: String
-    Default: "https://your-portfolio.vercel.app"
-
-Resources:
-  PortfolioBackend:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: backend/
-      Handler: lambda_handler.handler
-      Environment:
-        Variables:
-          DATABASE_URL: !Ref DatabaseUrl
-          GEMINI_API_KEY: !Ref GeminiApiKey
-          FRONTEND_URL: !Ref FrontendUrl
-          DEBUG: "False"
-      Events:
-        ApiRoot:
-          Type: HttpApi
-          Properties:
-            Path: /
-            Method: ANY
-        ApiProxy:
-          Type: HttpApi
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
-
-Outputs:
-  ApiUrl:
-    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com"
+VITE_API_URL = https://portfolio-backend-xxxx.onrender.com
 ```
 
-#### Step 2 — AWS one-time setup
+Trigger a redeploy of the frontend. The portfolio now talks to your Render backend.
 
-1. Create an [AWS account](https://aws.amazon.com) (free tier)
-2. Go to **IAM → Users → Create User** → attach these policies:
-   - `AWSLambda_FullAccess`
-   - `AmazonAPIGatewayAdministrator`
-   - `AWSCloudFormationFullAccess`
-   - `AmazonS3FullAccess`
-   - `IAMFullAccess`
-3. **Security credentials → Create access key** → save the ID and secret
+#### Step 4 — Verify
 
-#### Step 3 — Install CLI tools
+Visit your Vercel URL. Open browser DevTools → Network tab. Within ~1 second of page load, you should see a `GET /api/health` request that returns 200. The `WarmBanner` toast appears at the top of the page: *"Assistant is ready — use the chat →"*.
 
-```bash
-# AWS CLI — macOS
-brew install awscli
-# Windows: download installer from aws.amazon.com/cli
+If you wait 15+ minutes and reload, you'll see the `GET /api/health` request take ~30 seconds to respond (cold start), then the banner appears. The visitor never sees a broken chat — the backend is always warm by the time they click.
 
-# Configure with your credentials
-aws configure
-# Prompts for: Access Key ID, Secret Access Key, Region, Output format
-# Use ap-south-1 (Mumbai) for lowest latency from India
+#### Cold-start mitigation summary
 
-# AWS SAM CLI — macOS
-brew install aws-sam-cli
-# Windows: download from aws.amazon.com/serverless/sam
-```
+| Layer | What it does |
+|---|---|
+| **`GET /api/health`** | Lightweight endpoint, no DB access. Returns `{status: "ok"}` in ~50ms once warm. |
+| **`useBackendWarm` hook** | Fires the health ping on `App` mount, 8-second timeout. Returns `'warming' \| 'warm' \| 'cold'`. |
+| **`WarmBanner` component** | Non-blocking toast appears above the navbar once `warmStatus === 'warm'`. Dismissible. |
+| **ChatWidget auto-open** | Once warm, chat opens automatically after 1.4s. Visitor lands directly in onboarding, no manual click needed. |
 
-#### Step 4 — Build and deploy
+No `cron-job.org` or UptimeRobot pinger needed — the frontend itself is the pinger, and it only fires when there's an actual visitor (so you don't burn the Render free tier's 750-hour/month limit on empty pings).
 
-```bash
-# From the repo root (where template.yaml lives)
-sam build
-
-sam deploy --guided   --stack-name portfolio-backend   --capabilities CAPABILITY_IAM   --parameter-overrides     DatabaseUrl="postgresql+asyncpg://postgres.[ref]:[pass]@[host]:6543/postgres"     GeminiApiKey="your_gemini_key"     FrontendUrl="https://your-portfolio.vercel.app"
-```
-
-SAM asks a few questions on first run and saves the answers to `samconfig.toml`. Every future deploy is just:
-
-```bash
-sam build && sam deploy
-```
-
-After deploy, SAM prints:
-```
-Outputs:
-ApiUrl = https://xxxxxxxxxx.execute-api.ap-south-1.amazonaws.com
-```
-
-Set that as `VITE_API_URL` in your **Vercel dashboard → Settings → Environment Variables**, then trigger a redeploy of the frontend.
-
-#### Free tier cold starts — fix with UptimeRobot
-
-
+---
 
 ## Projects Featured
 
@@ -455,15 +392,21 @@ Set that as `VITE_API_URL` in your **Vercel dashboard → Settings → Environme
 
 ## Roadmap
 
-- [ ] **Recruiter email capture** — Collect email from recruiter visitors during onboarding and send an automated follow-up with project links. Needs Resend API integration.
+**Done:**
+- [x] **Google Fonts** — Fraunces (serif display) + Outfit (body) + DM Mono loaded via `@import` in `index.css`.
+- [x] **Visitor email capture** — Optional name + email field in chat onboarding. Stored in `subscribed_visitors` table (Supabase). POST `/api/visitors` is fire-and-forget — visitor experience is never blocked by analytics.
+- [x] **Cold-start UX** — Silent `GET /api/health` pre-warm on page load, `WarmBanner` toast once warm, ChatWidget auto-opens after 1.4s. No cron pingers needed.
+- [x] **Backend tests** — 19 pytest tests covering `/api/health`, `/api/visitors`, `/api/chat` validation, `/api/contact`. SQLite in-memory, no Postgres needed.
+- [x] **Frontend tests** — 13 vitest tests covering `useBackendWarm` hook + `WarmBanner` visibility logic. jsdom env, no browser needed.
+- [x] **CI pipeline** — `.github/workflows/ci.yml` runs pytest + vitest + vite build on every PR. Blocks merge if any job fails.
+
+**Planned:**
+- [ ] **Achievement notifications** — Admin endpoint (auth-protected) that sends a templated email to all `subscribed_visitors` via Resend when a new project/cert/milestone is added. Triggered manually via a CLI script or admin UI.
 - [ ] **Resume PDF** — Add `resume.pdf` to `frontend/public/` so the Download CV button works.
-- [x] **Google Fonts** — Add Space Grotesk for headings and JetBrains Mono for code elements.
-- [x] **AWS Lambda** — Backend deployed on Lambda + API Gateway via SAM. Zero spindown, 1M free requests/month, ~1–2 s cold starts.
-- [ ] **CI/CD pipeline** — GitHub Actions: `sam build && sam deploy` on push to main so backend auto-deploys with the frontend.
-- [ ] **Analytics** — Add Umami or Plausible for privacy-friendly visitor tracking.
+- [ ] **Analytics** — Privacy-friendly visitor tracking (Plausible or Vercel Analytics). Deferred — the `subscribed_visitors` table gives the actual signal that matters (recruiters who self-identified), so a hit counter is unnecessary.
 - [ ] **Blog section** — Minimal writing section for learnings on AI engineering and FastAPI.
 - [ ] **Alembic migrations** — Replace `create_all` startup with proper Alembic migration files.
-- [ ] **CI/CD pipeline** — GitHub Actions to lint and auto-deploy on push to main.
+- [ ] **CD pipeline** — Auto-deploy frontend to Vercel + backend to Render on push to `main` (after CI passes).
 
 ---
 
