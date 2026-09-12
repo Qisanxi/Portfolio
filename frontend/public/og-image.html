@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Outfit:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1200px;
+    height: 630px;
+    overflow: hidden;
+    background: #120E08;
+    font-family: 'Outfit', sans-serif;
+    color: #EDE4CF;
+    position: relative;
+  }
+
+  /* Background glow + grid */
+  .bg-glow {
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 60% 50% at 70% 50%, rgba(196,145,63,0.08) 0%, transparent 65%),
+      linear-gradient(rgba(196,145,63,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(196,145,63,0.015) 1px, transparent 1px);
+    background-size: auto, 48px 48px, 48px 48px;
+    pointer-events: none;
+  }
+
+  /* Left text column */
+  .text-col {
+    position: absolute;
+    left: 48px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 380px;
+    z-index: 10;
+  }
+
+  .accent-line {
+    width: 28px;
+    height: 1px;
+    background: #C4913F;
+    margin-bottom: 16px;
+  }
+
+  .label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #C4913F;
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .name {
+    font-family: 'Fraunces', serif;
+    font-size: 42px;
+    font-weight: 600;
+    color: #EDE4CF;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .name span { color: #C4913F; }
+
+  .role {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: #DDB87A;
+    margin-bottom: 16px;
+  }
+
+  .desc {
+    font-size: 13px;
+    color: #9A8E78;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .availability {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+
+  .availability .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ade80;
+    box-shadow: 0 0 6px rgba(74,222,128,0.6);
+  }
+
+  .availability .text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: #4ade80;
+  }
+
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+  }
+
+  .tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #C4913F;
+    background: rgba(196,145,63,0.08);
+    border: 1px solid rgba(196,145,63,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  .url {
+    position: absolute;
+    bottom: 24px;
+    left: 48px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: #5C5446;
+  }
+
+  /* Right device mockup area */
+  .devices {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 720px;
+    height: 630px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Laptop frame */
+  .laptop {
+    width: 620px;
+    position: relative;
+    z-index: 5;
+    filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
+  }
+
+  .laptop-screen-body {
+    background: #1E1D1A;
+    border-radius: 10px 10px 0 0;
+    padding: 22px 7px 7px;
+    border: 1.5px solid #38342C;
+    border-bottom: none;
+    position: relative;
+  }
+
+  .traffic-lights {
+    position: absolute;
+    top: 8px;
+    left: 10px;
+    display: flex;
+    gap: 4px;
+  }
+
+  .traffic-lights div {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.5px rgba(0,0,0,0.3);
+  }
+
+  .traffic-lights .red { background: #FF5F57; }
+  .traffic-lights .yellow { background: #FFBD2E; }
+  .traffic-lights .green { background: #28C840; }
+
+  .laptop-screen {
+    background: #0D0C0A;
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid #2A2720;
+    aspect-ratio: 16/9;
+  }
+
+  .laptop-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .laptop-base {
+    height: 9px;
+    background: linear-gradient(180deg, #2A2720 0%, #1A1712 100%);
+    border-radius: 0 0 7px 7px;
+    border: 1.5px solid #38342C;
+    border-top: 1px solid #1A1712;
+  }
+
+  /* Phone frame */
+  .phone {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
+    width: 110px;
+    background: #1E1D1A;
+    border-radius: 14px;
+    padding: 12px 4px 5px;
+    border: 1.5px solid #38342C;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.4);
+    z-index: 10;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 18px;
+    height: 3px;
+    border-radius: 2px;
+    background: #0D0C0A;
+  }
+
+  .phone-screen {
+    background: #0D0C0A;
+    border-radius: 8px;
+    overflow: hidden;
+    aspect-ratio: 9/19.5;
+  }
+
+  .phone-screen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  .phone-home-bar {
+    width: 24px;
+    height: 2px;
+    background: #38342C;
+    border-radius: 2px;
+    margin: 4px auto 0;
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg-glow"></div>
+
+  <!-- Left text column -->
+  <div class="text-col">
+    <div class="accent-line"></div>
+    <div class="label">PORTFOLIO</div>
+    <div class="name">Sandeep<span>.</span><br>Kumar<span>.</span></div>
+    <div class="role">Software Engineer &amp; AI Builder</div>
+    <div class="desc">
+      Python Backend &amp; AI-Integrated Full-Stack Developer.
+      Building AI agents, RAG pipelines, and scalable APIs
+      with FastAPI, React, and Google GenAI.
+    </div>
+    <div class="availability">
+      <span class="dot"></span>
+      <span class="text">Open to work</span>
+    </div>
+    <div class="tech-tags">
+      <span class="tag">Python</span>
+      <span class="tag">FastAPI</span>
+      <span class="tag">React</span>
+      <span class="tag">Gemini</span>
+      <span class="tag">Docker</span>
+    </div>
+  </div>
+
+  <div class="url">sandeepqisanxidev.vercel.app</div>
+
+  <!-- Right device mockups -->
+  <div class="devices">
+    <!-- Laptop with desktop screenshot -->
+    <div class="laptop">
+      <div class="laptop-screen-body">
+        <div class="traffic-lights">
+          <div class="red"></div>
+          <div class="yellow"></div>
+          <div class="green"></div>
+        </div>
+        <div class="laptop-screen">
+          <img src="screenshots/desktop_full.png" alt="Portfolio on desktop" />
+        </div>
+      </div>
+      <div class="laptop-base"></div>
+    </div>
+
+    <!-- Phone with mobile screenshot -->
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <img src="screenshots/mobile_full.png" alt="Portfolio on mobile" />
+      </div>
+      <div class="phone-home-bar"></div>
+    </div>
+  </div>
+
+</body>
+</html>
