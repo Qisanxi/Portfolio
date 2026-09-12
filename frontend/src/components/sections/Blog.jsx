@@ -36,8 +36,8 @@ const posts = [
     link: 'https://github.com/Qisanxi/AutoPost',
   },
   {
-    title: 'FastAPI + AWS App Runner: Deploying for &lt;$5/month',
-    excerpt: 'A step-by-step guide to containerizing a FastAPI backend, pushing to ECR, and running it on App Runner — keeping infra costs near zero for side projects.',
+    title: 'FastAPI + Render: Deploying for <$5/month',
+    excerpt: 'A step-by-step guide to deploying a FastAPI backend on Render free tier — handling cold starts, Supabase pooler connections, and keeping infra costs near zero for side projects.',
     tag: 'Cloud & DevOps',
     tagColor: '#C4913F',
     readTime: '4 min read',
@@ -82,10 +82,9 @@ function BlogCard({ post, index }) {
 
       {/* Title */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-        <h3
-          style={{ color: TEXT, fontSize: '14px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.5', margin: 0 }}
-          dangerouslySetInnerHTML={{ __html: post.title }}
-        />
+        <h3 style={{ color: TEXT, fontSize: '14px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.5', margin: 0 }}>
+          {post.title}
+        </h3>
         <ArrowUpRight size={14} style={{ color: FAINT, flexShrink: 0, marginTop: '3px' }} />
       </div>
 

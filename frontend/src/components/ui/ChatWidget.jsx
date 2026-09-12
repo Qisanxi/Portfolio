@@ -271,7 +271,7 @@ export default function ChatWidget({ warmStatus }) {
           boxShadow: '0 24px 64px rgba(0,0,0,0.7)',
           display: 'flex', flexDirection: 'column',
           overflow: 'hidden',
-          maxHeight: 'calc(100vh - 120px)',
+          maxHeight: 'calc(100svh - 120px)',
         }}>
           <Header />
 
@@ -500,7 +500,7 @@ export default function ChatWidget({ warmStatus }) {
 
               <div
                 className="chat-scroll"
-                style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '340px' }}
+                style={{ flex: 1, overflowY: 'auto', padding: '14px', display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: 'min(340px, calc(100svh - 280px))' }}
               >
                 {messages.map((msg, i) =>
                   msg.role === 'user' ? (

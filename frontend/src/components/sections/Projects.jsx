@@ -271,7 +271,7 @@ function FeaturedCard({ project }) {
       }}
     >
       {/* Left — device display */}
-      <div style={{ borderRight: '1px solid rgba(196,145,63,0.08)' }}>
+      <div className="project-img-panel" style={{ borderRight: '1px solid rgba(196,145,63,0.08)' }}>
         <DeviceDisplay project={project} compact={false} />
       </div>
 
@@ -405,12 +405,14 @@ export default function Projects() {
       <style>{`
         @keyframes livePulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 
-        /* Stack featured cards on mobile — device mockup on top, content below */
+        /* Stack featured cards on mobile — device mockup on top, content below.
+           Uses the .project-img-panel class instead of > div:first-child so
+           the rule keeps working even if the DOM structure changes. */
         @media (max-width: 640px) {
           .project-card {
             grid-template-columns: 1fr !important;
           }
-          .project-card > div:first-child {
+          .project-card .project-img-panel {
             border-right: none !important;
             border-bottom: 1px solid rgba(196,145,63,0.08);
           }
