@@ -17,7 +17,7 @@ export default function Footer() {
         </div>
 
         <p style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)', textAlign: 'center', margin: 0 }}>
-          Built with React · FastAPI · PostgreSQL · Google GenAI SDK · AWS App Runner
+          Built with React · FastAPI · PostgreSQL · Google GenAI SDK · TailwindCSS
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
