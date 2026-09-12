@@ -1,5 +1,7 @@
 # Sandeep Kumar — Portfolio
 
+[![CI](https://github.com/Qisanxi/Portfolio/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Qisanxi/Portfolio/actions/workflows/ci.yml)
+
 Personal portfolio website with an AI-powered chatbot built to showcase projects, skills, and experience. The chatbot identifies visitors (recruiter, student, or connection) and personalizes the conversation accordingly.
 
 **🌐 Live site:** [sandeepqisanxidev.vercel.app](https://sandeepqisanxidev.vercel.app)
