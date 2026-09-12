@@ -123,8 +123,9 @@ export default function Hero() {
               </a>
             </div>
 
-            {/* Social links */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            {/* Social links — flexWrap so the row reflows on narrow screens
+                instead of pushing the github.com/Qisanxi label off-screen */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
               <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" style={{ color: FAINT, transition: 'color 0.2s', textDecoration: 'none' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
@@ -138,7 +139,7 @@ export default function Hero() {
                 onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
               ><Mail size={20} /></a>
               <div style={{ width: '1px', height: '14px', background: FAINT + '50' }}></div>
-              <span style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>github.com/Qisanxi</span>
+              <span className="hero-social-label" style={{ color: FAINT, fontSize: '11px', fontFamily: 'var(--font-mono)' }}>github.com/Qisanxi</span>
             </div>
           </div>
 
@@ -189,11 +190,10 @@ export default function Hero() {
       <style>{`
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes heroBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
-        /* Hide the profile photo on phones — keeps the Hero text full-width
-           on small screens. The 640px breakpoint matches Tailwind's 'sm'. */
-        @media (max-width: 640px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
-          .hero-photo { display: none !important; }
+        /* Hide the github.com/Qisanxi trailing label on phones — the icons
+           alone are enough, and the label was pushing the row off-screen. */
+        @media (max-width: 480px) {
+          .hero-social-label { display: none !important; }
         }
       `}</style>
     </section>
