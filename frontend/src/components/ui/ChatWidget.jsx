@@ -256,11 +256,13 @@ export default function ChatWidget({ warmStatus }) {
         </div>
       </div>
 
-      {/* Chat panel */}
+      {/* Chat panel — positioned on the LEFT side so it doesn't cover project
+          screenshots on the right. The floating launcher button stays
+          bottom-right (standard UX convention); only the panel flips left. */}
       {open && (
         <div style={{
           position: 'fixed',
-          bottom: '90px', right: '16px',
+          bottom: '90px', left: '16px',
           zIndex: 100,
           width: 'min(460px, calc(100vw - 32px))',
           borderRadius: '16px',
