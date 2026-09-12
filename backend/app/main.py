@@ -42,3 +42,11 @@ app.include_router(visitors.router, prefix="/api")
 @app.get("/")
 async def root():
     return {"status": "Portfolio API is running"}
+
+@app.get("/health")
+async def health_root():
+    """Root-level health check — Render's default health check probes
+    /health (without the /api prefix), so we expose the same response
+    here as /api/health. Returns instantly, no DB access.
+    """
+    return {"status": "ok"}
