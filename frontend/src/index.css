@@ -96,6 +96,36 @@ section + section {
 *::-webkit-scrollbar-track { background: transparent; }
 *::-webkit-scrollbar-thumb { background: rgba(196,145,63,0.15); border-radius: 2px; }
 
+/* ─── Mobile responsiveness overrides ────────────────────────────────────
+   Bugs #4 and #6 from issue #12 — Skills 140px label column and
+   Certifications title+Verify row both overflow on phones.
+   Stacks each to single-column below their respective breakpoints. */
+
+/* Bug #4 — Skills table: stack label above pills on phones.
+   On a 360px device the 140px label column leaves only 172px for pills,
+   which makes 'Prompt Engineering' barely fit. Stacking gives pills
+   the full container width. */
+@media (max-width: 540px) {
+  .skills-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px 0 !important;
+  }
+}
+
+/* Bug #6 — Certifications: long title + Verify button cramped in one row.
+   On mobile the Verify button floats right while the title wraps awkwardly.
+   Stacking puts Verify below the title for clean layout. */
+@media (max-width: 480px) {
+  .cert-title-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 6px !important;
+  }
+  .cert-title-row .cert-verify-btn {
+    align-self: flex-start !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal, .reveal-children > * {
     opacity: 1;

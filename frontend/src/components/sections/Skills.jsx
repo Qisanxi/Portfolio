@@ -79,6 +79,7 @@ export default function Skills() {
           {skillGroups.map((group, i) => (
             <div
               key={group.category}
+              className="skills-row"
               style={{
                 display: 'grid',
                 gridTemplateColumns: '140px 1fr',
