@@ -45,12 +45,15 @@ export default function ChatWidget({ warmStatus }) {
   const { messages, loading, sendMessage, clearMessages, initializeChat } = useChat()
   const bottomRef = useRef(null)
 
-  // Auto-open chat once backend is warm, but only if the visitor hasn't
-  // already dismissed it this session. This is the "warm nudge" — the
-  // backend is now ready, so the chat will respond instantly.
+  // Auto-open chat once backend is warm — but ONLY on desktop (>=768px).
+  // On mobile, auto-opening the chat panel covers most of the screen and
+  // feels invasive. Mobile visitors see the WarmBanner toast + the pulsing
+  // chat button, and can open the chat manually when they're ready.
   useEffect(() => {
     if (warmStatus !== 'warm') return
     if (sessionStorage.getItem('portfolio:chatAutoOpened') === '1') return
+    // Skip auto-open on phones/tablets — too disruptive on small screens
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return
     sessionStorage.setItem('portfolio:chatAutoOpened', '1')
     // Small delay so the WarmBanner appears first, then the chat opens
     const t = setTimeout(() => setOpen(true), 1400)
