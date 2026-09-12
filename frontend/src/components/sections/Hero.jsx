@@ -42,7 +42,7 @@ export default function Hero() {
   }
 
   return (
-    <section id="hero" style={{ minHeight: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px 24px 48px', position: 'relative', overflow: 'hidden' }}>
+    <section id="hero" style={{ minHeight: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '80px 24px 96px', position: 'relative', overflow: 'hidden' }}>
 
       {/* Subtle warm grain background */}
       <div style={{
@@ -189,8 +189,12 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div style={{ position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', animation: 'heroBounce 2s ease-in-out infinite' }}>
+      {/* Scroll indicator — positioned with extra bottom margin so it
+          doesn't crowd the 'Open to work' badge on mobile when the
+          photo+badge sit low in the viewport. Section paddingBottom was
+          increased from 48px to 96px to push the centered content up
+          and create breathing room above the scroll indicator. */}
+      <div style={{ position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', animation: 'heroBounce 2s ease-in-out infinite', zIndex: 1 }}>
         <span style={{ color: FAINT, fontSize: '10px', fontFamily: 'var(--font-mono)' }}>scroll</span>
         <ArrowDown size={13} color={FAINT} />
       </div>
