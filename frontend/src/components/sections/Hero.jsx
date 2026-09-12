@@ -58,14 +58,16 @@ export default function Hero() {
       <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', position: 'relative' }}>
         <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '40px', alignItems: 'center' }}>
 
-          {/* Text block */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+          {/* Text block — contains everything except the photo.
+              On mobile, the .hero-photo block moves INTO this column via
+              the CSS order rules in the <style> block at the bottom. */}
+          <div className="hero-text">
+            <div className="hero-hello" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
               <div style={{ width: '28px', height: '1px', background: ACCENT }}></div>
               <span style={{ color: ACCENT, fontSize: '12px', fontFamily: 'var(--font-mono)' }}>Hello, world</span>
             </div>
 
-            <h1 style={{
+            <h1 className="hero-name" style={{
               fontSize: 'clamp(42px, 9vw, 80px)',
               fontFamily: 'var(--font-serif)',
               fontWeight: 600,
@@ -78,7 +80,12 @@ export default function Hero() {
               Kumar<span style={{ color: ACCENT }}>.</span>
             </h1>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', minHeight: '32px' }}>
+            {/* Typing animation container — fixed height + overflow hidden
+                so the typing/deleting cycle never causes layout shift.
+                Previously used minHeight: 32px which let the container grow
+                when the typed text wrapped. whiteSpace: nowrap + overflow
+                hidden ensures the text is always exactly one line tall. */}
+            <div className="hero-typing" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', height: '1.8em', overflow: 'hidden', whiteSpace: 'nowrap' }}>
               <span style={{ color: FAINT, fontFamily: 'var(--font-mono)', fontSize: '15px' }}>~$</span>
               <span style={{ color: '#DDB87A', fontFamily: 'var(--font-mono)', fontSize: 'clamp(14px, 3vw, 18px)' }}>
                 {displayed}
@@ -86,13 +93,13 @@ export default function Hero() {
               </span>
             </div>
 
-            <p style={{ color: MUTED, fontSize: 'clamp(14px, 2.5vw, 16px)', maxWidth: '520px', marginBottom: '36px', lineHeight: '1.75' }}>
+            <p className="hero-intro" style={{ color: MUTED, fontSize: 'clamp(14px, 2.5vw, 16px)', maxWidth: '520px', marginBottom: '36px', lineHeight: '1.75' }}>
               Growth is the equation where iteration and grinding are the variables — every cycle of effort compounds into mastery,
               every challenge becomes fuel for transformation. This Portfolio is depiction of my growth while Projects and Certifications
               in it represent the iteration and grinding .
             </p>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '36px' }}>
+            <div className="hero-buttons" style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '36px' }}>
               <button
                 onClick={scrollToProjects}
                 style={{
@@ -125,7 +132,7 @@ export default function Hero() {
 
             {/* Social links — flexWrap so the row reflows on narrow screens
                 instead of pushing the github.com/Qisanxi label off-screen */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
+            <div className="hero-social" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '16px' }}>
               <a href="https://github.com/Qisanxi" target="_blank" rel="noreferrer" style={{ color: FAINT, transition: 'color 0.2s', textDecoration: 'none' }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = TEXT }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = FAINT }}
@@ -143,9 +150,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Profile photo — hidden on phones (<640px) via CSS media query below.
-              The previous 'hidden md:flex' Tailwind class hid it on <768px which
-              was too aggressive — squeezed the text on mid-sized laptops. */}
+          {/* Profile photo — on desktop sits in the right column of the grid.
+              On mobile, the CSS order rules below move it BETWEEN the name
+              and the typing animation, so the mobile layout reads:
+              Hello → Name → Photo → Typing → Intro → Buttons → Social */}
           <div className="hero-photo" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
             <div style={{
               background: `linear-gradient(135deg, ${ACCENT} 0%, #A8762B 50%, #2E200A 100%)`,
@@ -167,7 +175,7 @@ export default function Hero() {
               />
             </div>
 
-            <div style={{
+            <div className="hero-availability" style={{
               display: 'flex', alignItems: 'center', gap: '7px',
               padding: '5px 14px', borderRadius: '20px',
               background: 'rgba(74,222,128,0.06)',
@@ -190,10 +198,53 @@ export default function Hero() {
       <style>{`
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes heroBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
-        /* Hide the github.com/Qisanxi trailing label on phones — the icons
-           alone are enough, and the label was pushing the row off-screen. */
+
+        /* Hide the github.com/Qisanxi trailing label on phones — icons alone are enough. */
         @media (max-width: 480px) {
           .hero-social-label { display: none !important; }
+        }
+
+        /* ─── Mobile Hero restructure (<=640px) ─────────────────────────────
+           Desktop keeps the 2-column grid (text left, photo right).
+           Mobile flattens to 1 column AND reorders children so the photo
+           appears BETWEEN the name and the typing animation — giving the
+           mobile visitor a clear visual of who Sandeep is before reading
+           the rest.
+
+           Final mobile order (via CSS order property):
+             1. .hero-hello        — "Hello, world"
+             2. .hero-name         — "Sandeep. Kumar."
+             3. .hero-photo        — profile picture (circle) + availability badge
+             4. .hero-typing       — "~$ Software Engineer|"
+             5. .hero-intro        — paragraph
+             6. .hero-buttons      — View my work / resume.pdf
+             7. .hero-social       — GitHub / LinkedIn / Mail / github.com/Qisanxi
+
+           Desktop keeps original order: hello → name → typing → intro →
+           buttons → social (text column) | photo (right column) */
+        @media (max-width: 640px) {
+          .hero-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .hero-text {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-start !important;
+          }
+          .hero-hello    { order: 1; }
+          .hero-name     { order: 2; }
+          .hero-photo    { order: 3; align-self: center !important; }
+          .hero-typing   { order: 4; }
+          .hero-intro    { order: 5; }
+          .hero-buttons  { order: 6; }
+          .hero-social   { order: 7; }
+          /* Shrink the photo on mobile so it doesn't dominate the hero.
+             Desktop stays at 196px; mobile uses 140px. */
+          .hero-photo img {
+            width: 140px !important;
+            height: 140px !important;
+          }
         }
       `}</style>
     </section>
