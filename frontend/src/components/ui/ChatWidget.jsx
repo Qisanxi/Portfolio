@@ -186,10 +186,23 @@ export default function ChatWidget({ warmStatus }) {
         .chat-scroll::-webkit-scrollbar-thumb { background: rgba(196,145,63,0.2); border-radius: 2px; }
         .bot-bubble p:last-child { margin-bottom: 0; }
         .chat-opt:hover { background: rgba(196,145,63,0.08) !important; border-color: rgba(196,145,63,0.3) !important; }
+
+        /* Mobile-only backdrop — only shown on screens < 768px wide.
+           Desktop users see the portfolio behind the chat (no clutter
+           since the panel doesn't dominate their screen).
+           Phone users get a blurred dark overlay so the chat is the
+           single focus, similar to a modal. */
+        @media (max-width: 767px) {
+          .chat-backdrop {
+            display: block !important;
+          }
+        }
       `}</style>
 
-      {/* Floating launcher */}
-      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 100, display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
+      {/* Floating launcher — bumped to zIndex 105 so it stays ABOVE the
+          mobile backdrop (zIndex 95). Lets the user tap the X button to
+          close the chat even when the backdrop is covering the portfolio. */}
+      <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 105, display: 'flex', alignItems: 'flex-end', gap: '10px' }}>
 
         {/* Peek tooltip — shown after 4s if not yet opened */}
         {peeked && !open && (
@@ -258,6 +271,32 @@ export default function ChatWidget({ warmStatus }) {
           )}
         </div>
       </div>
+
+      {/* Mobile backdrop — covers the portfolio content behind the chat
+          panel with a blurred dark overlay so the chat isn't cluttered by
+          background text. Only renders on screens < 768px wide (phones +
+          small tablets) via a CSS media query below — desktop users can see
+          the portfolio behind the chat since the panel doesn't dominate
+          their screen.
+          Clicking the backdrop closes the chat (standard modal UX).
+          zIndex 95: above portfolio content (zIndex 50 for navbar, etc),
+          below the chat panel (zIndex 100) and the floating launcher
+          button (zIndex 105) so user can still tap X to close. */}
+      {open && (
+        <div
+          onClick={handleClose}
+          className="chat-backdrop"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 95,
+            background: 'rgba(8, 6, 4, 0.55)',
+            backdropFilter: 'blur(6px)',
+            WebkitBackdropFilter: 'blur(6px)',
+            display: 'none',  /* hidden by default — shown via media query below */
+          }}
+        />
+      )}
 
       {/* Chat panel — positioned on the LEFT side so it doesn't cover project
           screenshots on the right. The floating launcher button stays
