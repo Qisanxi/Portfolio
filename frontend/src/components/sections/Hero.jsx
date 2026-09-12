@@ -56,7 +56,7 @@ export default function Hero() {
       }} />
 
       <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', position: 'relative' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '40px', alignItems: 'center' }}>
+        <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: '40px', alignItems: 'center' }}>
 
           {/* Text block */}
           <div>
@@ -142,10 +142,10 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Profile photo — hidden on mobile */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', flexShrink: 0 }}
-            className="hidden md:flex"
-          >
+          {/* Profile photo — hidden on phones (<640px) via CSS media query below.
+              The previous 'hidden md:flex' Tailwind class hid it on <768px which
+              was too aggressive — squeezed the text on mid-sized laptops. */}
+          <div className="hero-photo" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', flexShrink: 0 }}>
             <div style={{
               background: `linear-gradient(135deg, ${ACCENT} 0%, #A8762B 50%, #2E200A 100%)`,
               borderRadius: '50%',
@@ -189,6 +189,12 @@ export default function Hero() {
       <style>{`
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes heroBounce { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        /* Hide the profile photo on phones — keeps the Hero text full-width
+           on small screens. The 640px breakpoint matches Tailwind's 'sm'. */
+        @media (max-width: 640px) {
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hero-photo { display: none !important; }
+        }
       `}</style>
     </section>
   )

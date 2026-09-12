@@ -2,20 +2,17 @@ import { useEffect, useState } from 'react'
 import { Sparkles, X } from 'lucide-react'
 
 /**
- * WarmBanner — non-blocking toast that appears at the top of the page once
- * the backend has finished warming up (i.e. the /api/health ping succeeded).
+ * WarmBanner — non-blocking toast that appears below the navbar once the
+ * backend has finished warming up (i.e. the /api/health ping succeeded).
  *
  * UX rules:
- *   - Only shows if the visitor hasn't dismissed it before (localStorage)
- *   - Auto-dismisses after 12 seconds
+ *   - Positioned at top: 68px so it sits BELOW the fixed navbar (which is
+ *     ~56px tall) — doesn't cover the nav links
+ *   - Auto-dismisses after 4 seconds (was 12s — too long, made the page
+ *     feel cluttered)
  *   - Doesn't block scroll, doesn't capture clicks outside the banner
- *   - Dismiss button (X) on the right
- *
- * Why non-blocking instead of a modal:
- *   - Recruiters open 20+ portfolios in tabs and hate being forced into
- *     interactions before they can see your work
- *   - A toast at the top of the page is visible but ignorable — best of both
- *   - The CTA is gentle: "Want a guided tour? Open the chat →"
+ *   - Dismiss button (X) on the right for manual close
+ *   - sessionStorage remembers dismissal so it doesn't reappear same session
  */
 const STORAGE_KEY = 'portfolio:warmBannerDismissed'
 
@@ -30,7 +27,8 @@ export default function WarmBanner({ warmStatus }) {
 
     // Small delay so it doesn't feel jarring on page load
     const showTimeout = setTimeout(() => setVisible(true), 600)
-    const hideTimeout = setTimeout(() => setVisible(false), 12600)
+    // Auto-dismiss after 4 seconds (4600ms = 600ms show delay + 4000ms display)
+    const hideTimeout = setTimeout(() => setVisible(false), 4600)
 
     return () => {
       clearTimeout(showTimeout)
@@ -51,7 +49,7 @@ export default function WarmBanner({ warmStatus }) {
       aria-live="polite"
       style={{
         position: 'fixed',
-        top: '12px',
+        top: '68px',                // below the navbar (navbar is ~56px tall + 12px gap)
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 200,
