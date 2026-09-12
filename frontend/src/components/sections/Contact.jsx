@@ -71,7 +71,7 @@ export default function Contact() {
           </p>
         </div>
 
-        <div ref={bodyRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '32px' }}>
+        <div ref={bodyRef} className="reveal" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(280px, 100%), 1fr))', gap: '32px' }}>
 
           {/* Form */}
           <div>
@@ -86,7 +86,7 @@ export default function Contact() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
                   {[
                     { name: 'name',  type: 'text',  placeholder: 'Your name' },
                     { name: 'email', type: 'email', placeholder: 'your@email.com' },
