@@ -4,7 +4,8 @@
 
 Personal portfolio website with an AI-powered chatbot built to showcase projects, skills, and experience. The chatbot identifies visitors (recruiter, student, or connection) and personalizes the conversation accordingly.
 
-**🌐 Live site:** [sandeep-kumar.vercel.app](https://sandeep-kumar.vercel.app)
+**🌐 Live site:** [sandeepqisanxidev.vercel.app](https://sandeepqisanxidev.vercel.app)
+**Backend API:** [sandeep-qisan.onrender.com](https://sandeep-qisan.onrender.com)
 **GitHub:** [github.com/Qisanxi](https://github.com/Qisanxi)
 **LinkedIn:** [linkedin.com/in/sandeep-qisanxi](https://www.linkedin.com/in/sandeep-qisanxi)
 
@@ -104,7 +105,7 @@ sequenceDiagram
     participant DB as PostgreSQL<br/>(Supabase)
 
     Note over V,FE: Portfolio load + pre-warm
-    V->>FE: Opens sandeep-kumar.vercel.app
+    V->>FE: Opens sandeepqisanxidev.vercel.app
     FE->>API: GET /api/health (silent — wakes Render backend)
     FE->>V: WarmBanner appears: "Assistant is ready — use the chat →"
     FE->>V: Chat auto-opens after 1.4 s
@@ -343,19 +344,19 @@ Make sure your `backend/` folder is on `main` (it already is).
    |---|---|---|
    | `DATABASE_URL` | `postgresql+asyncpg://postgres.[ref]:[pass]@aws-0-[region].pooler.supabase.com:6543/postgres` | Supabase → Project Settings → Database → Connection string → **Transaction mode** (port 6543, not 5432) |
    | `GEMINI_API_KEY` | `AIza...` | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
-   | `FRONTEND_URL` | `https://sandeep-kumar.vercel.app` | Your Vercel URL |
+   | `FRONTEND_URL` | `https://sandeepqisanxidev.vercel.app` | Your Vercel URL |
    | `DEBUG` | `False` | Always False in production |
 
 5. **Create Web Service** — Render builds and deploys. First deploy takes ~2 min.
 
-Render gives you a URL like `https://portfolio-backend-xxxx.onrender.com`.
+Render gives you a URL like `https://sandeep-qisan.onrender.com` (the actual production URL for this project).
 
 #### Step 3 — Wire up the frontend
 
 In your **Vercel dashboard → Settings → Environment Variables**, add:
 
 ```
-VITE_API_URL = https://portfolio-backend-xxxx.onrender.com
+VITE_API_URL = https://sandeep-qisan.onrender.com
 ```
 
 Trigger a redeploy of the frontend. The portfolio now talks to your Render backend.
@@ -411,7 +412,7 @@ No `cron-job.org` or UptimeRobot pinger needed — the frontend itself is the pi
 
 **Sandeep Kumar** — Software Engineer · Python Backend & AI-Integrated Full-Stack
 
-- 🌐 Portfolio: [sandeep-kumar.vercel.app](https://sandeep-kumar.vercel.app)
+- 🌐 Portfolio: [sandeepqisanxidev.vercel.app](https://sandeepqisanxidev.vercel.app)
 - 💼 LinkedIn: [linkedin.com/in/sandeep-qisanxi](https://www.linkedin.com/in/sandeep-qisanxi)
 - 🐙 GitHub: [github.com/Qisanxi](https://github.com/Qisanxi)
 - 📧 Email: sandeepkumarultra615615@gmail.com

@@ -216,10 +216,13 @@ function DeviceDisplay({ project, compact }) {
         </div>
       )}
 
-      {/* Progress dots — bottom center */}
+      {/* Progress dots — bottom center. Positioned above the phone frame
+          (which sits at marginBottom: 8) so the dots stay visible/clickable.
+          Was bottom: 8, overlapping the phone. Now bottom: 20 — clears the
+          phone frame and stays interactive. */}
       {urls.length > 1 && (
         <div style={{
-          position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)',
+          position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)',
           display: 'flex', gap: 5,
         }}>
           {urls.map((_, i) => (

@@ -93,13 +93,16 @@ function CertCard({ cert }) {
 
       {/* Content */}
       <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Title row — Verify button pinned to top-right (replaces old ExternalLink icon) */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px', marginBottom: '4px' }}>
+        {/* Title row — Verify button pinned to top-right on desktop.
+            The .cert-title-row class lets the mobile media query in index.css
+            stack title + Verify vertically on phones (bug #6 from issue #12). */}
+        <div className="cert-title-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '10px', marginBottom: '4px' }}>
           <h3 style={{ color: TEXT, fontSize: '13px', fontFamily: 'var(--font-serif)', fontWeight: 500, lineHeight: '1.4', margin: 0, flex: 1, minWidth: 0 }}>
             {cert.name}
           </h3>
           {cert.link && (
             <a
+              className="cert-verify-btn"
               href={cert.link}
               target="_blank"
               rel="noreferrer"
