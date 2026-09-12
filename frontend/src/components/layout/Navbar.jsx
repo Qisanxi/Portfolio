@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Menu, X } from 'lucide-react'
 import { useScrollSpy } from '../../hooks/useScrollSpy'
 
@@ -17,12 +17,38 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const activeSection = useScrollSpy(sections)
+  const navRef = useRef(null)
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  // Close mobile menu on outside-click. Without this, visitors on touch
+  // devices have to find and tap the X button — annoying UX. The listener
+  // is only attached when the menu is open, so we don't pay the cost when
+  // it's closed. Also closes on Escape key for keyboard users.
+  useEffect(() => {
+    if (!menuOpen) return
+    const handleClickOutside = (e) => {
+      if (navRef.current && !navRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false)
+    }
+    // Use mousedown not click so the menu closes before any underlying
+    // link/button is activated (otherwise a tap on a project card would
+    // both close the menu AND trigger the card click).
+    document.addEventListener('mousedown', handleClickOutside)
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [menuOpen])
 
   const scrollTo = (id) => {
     setMenuOpen(false)
@@ -31,6 +57,7 @@ export default function Navbar() {
 
   return (
     <nav
+      ref={navRef}
       style={{
         position: 'fixed',
         top: 0,
@@ -119,16 +146,20 @@ export default function Navbar() {
           style={{ color: '#9A8E78', background: 'none', border: 'none', cursor: 'pointer', display: 'flex' }}
           className="md:hidden"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
+      {/* Mobile menu — backdrop blur matches the scrolled navbar appearance */}
       {menuOpen && (
         <div
           style={{
-            background: 'rgba(18,14,8,0.97)',
+            background: 'rgba(18,14,8,0.92)',
+            backdropFilter: 'blur(14px)',
+            WebkitBackdropFilter: 'blur(14px)',
             borderTop: '1px solid rgba(196,145,63,0.1)',
           }}
           className="md:hidden px-6 py-6 flex flex-col gap-5"
